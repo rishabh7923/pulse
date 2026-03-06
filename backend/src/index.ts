@@ -3,6 +3,7 @@ import 'dotenv/config';
 import express from 'express';
 import knexClient from 'knex';
 import jwt from 'jsonwebtoken';
+import bcrypt from 'bcrypt';
 
 import { EMAIL_EXIST, INVALID_CREDENTIALS, INVALID_PARAMETERS, USERNAME_EXISTS } from './errors.js';
 
@@ -12,17 +13,17 @@ app.use(express.json());
 const knex = knexClient({
   client: 'mysql2',
   connection: {
-    host: 'localhost',
-    port: 3306,
-    user: 'root',
-    password: 'pulse',
-    database: 'pulse',
+    host: process.env.SQL_HOST!,
+    port: Number(process.env.SQL_PORT!),
+    user: process.env.SQL_USERNAME!,
+    password: process.env.SQL_PASSWORD!,
+    database: process.env.SQL_DATABASE!,
   },
 });
 
 (async () => {
   app.post('/signup', async (req: express.Request, res: express.Response) => {
-    const { username, password, email } = req.body;
+    const { username, password, email } = req.body || {};
 
     if (!username || !password || !email) {
       return res.status(400).json({
@@ -56,12 +57,16 @@ const knex = knexClient({
     }
 
 
-    await knex('users').insert({ username, password, email, verified: false });
+    await knex('users').insert({
+      username,
+      password: await bcrypt.hashSync(password, 10),
+      email,
+      verified: false });
     res.status(201).json({ success: true, message: 'User signed up successfully' });
   });
 
   app.post('/login', async (req: express.Request, res: express.Response) => {
-    const { username, password } = req.body;
+    const { username, password } = req.body || {};
 
     if (!username || !password) {
       return res.status(400).json({
@@ -71,11 +76,20 @@ const knex = knexClient({
     }
 
     const user = await knex('users')
-      .select('email', 'username')
-      .where({ username, password })
+      .select('email', 'username', 'password')
+      .where({ username })
       .first();
 
     if (!user) {
+      return res.status(400).json({
+        success: false,
+        error: INVALID_CREDENTIALS
+      })
+    }
+
+    const isMatch = await bcrypt.compareSync(password, user.password);
+    
+    if (!isMatch) {
       return res.status(400).json({
         success: false,
         error: INVALID_CREDENTIALS
