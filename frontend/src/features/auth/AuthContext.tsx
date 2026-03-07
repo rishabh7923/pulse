@@ -27,13 +27,10 @@ function AuthProvider({ children }: { children: ReactNode }) {
         try {
             setIsLoading(true);
 
-            const data = (await loginApi(creds)) as {
-                token: string;
-                username: string;
-            };
+            const { data } = (await loginApi(creds)) as any;
 
             localStorage.setItem("token", data.token);
-            setUser(data.username);
+            setUser(data.user.username);
         } catch (err: unknown) {
             if (err instanceof Error) {
                 alert(err.message);
@@ -47,13 +44,11 @@ function AuthProvider({ children }: { children: ReactNode }) {
         try {
             setIsLoading(true);
 
-            const data = (await signupApi(creds)) as {
-                token: string;
-                username: string;
-            };
+            const { data } = (await signupApi(creds)) as any;
 
             localStorage.setItem("token", data.token);
-            setUser(data.username);
+            setUser(data.user.username);
+
         } catch (err: unknown) {
             if (err instanceof Error) {
                 alert(err.message);
@@ -79,7 +74,7 @@ function AuthProvider({ children }: { children: ReactNode }) {
 
             try {
                 const res = await axios("/users/me")
-                setUser(res.data.username)
+                setUser(res.data.data.user.username)
             } catch {
                 localStorage.removeItem("token")
                 setUser(null)
