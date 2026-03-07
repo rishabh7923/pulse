@@ -2,6 +2,7 @@ import express from "express"
 import jwt from "jsonwebtoken"
 
 import { UNAUTHORIZED } from "../errors.js";
+import type { TokenPayload } from "../types.js";
 
 export const isAuthenticated = (req: express.Request, res: express.Response, next: express.NextFunction) => {
     const token = req.headers['authorization']?.split(' ')[1];
@@ -10,9 +11,13 @@ export const isAuthenticated = (req: express.Request, res: express.Response, nex
         return res.status(401).json({ success: false, error: UNAUTHORIZED });
     }
 
-    if (!jwt.verify(token, process.env.JWT_SECRET_KEY!)) {
+    const decoded = jwt.verify(token, process.env.JWT_SECRET_KEY!);
+
+    if (!decoded) {
         return res.status(401).json({ success: false, error: UNAUTHORIZED });
     }
+
+    req.user = decoded as TokenPayload;
 
     next();
 }

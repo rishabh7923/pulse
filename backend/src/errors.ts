@@ -32,3 +32,13 @@ export const UNAUTHORIZED: ApiError = {
   code: 'UNAUTHORIZED',
   message: 'Unauthorized access',
 };
+
+export const OTP_SEND_FAILED: ApiError = {
+  code: 'OTP_SEND_FAILED',
+  message: 'Failed to send OTP email',
+};
+
+export const OTP_ALREADY_SENT: ApiError = {
+  code: 'OTP_ALREADY_SENT',
+  message: 'An OTP has already been sent. Please wait until it expires.',
+};

@@ -5,7 +5,9 @@ import knexClient from 'knex';
 import jwt from 'jsonwebtoken';
 import bcrypt from 'bcrypt';
 
-import { EMAIL_EXIST, INVALID_CREDENTIALS, INVALID_PARAMETERS, USERNAME_EXISTS } from './errors.js';
+import { EMAIL_EXIST, INVALID_CREDENTIALS, INVALID_PARAMETERS, OTP_ALREADY_SENT, OTP_SEND_FAILED, USERNAME_EXISTS } from './errors.js';
+import { isAuthenticated } from './middlewares/isAuthenticated.js';
+import { generateOTP, sendOTPMail } from './utils.js';
 
 const app = express();
 app.use(express.json());
@@ -18,11 +20,12 @@ const knex = knexClient({
     user: process.env.SQL_USERNAME!,
     password: process.env.SQL_PASSWORD!,
     database: process.env.SQL_DATABASE!,
+    timezone:'Z'
   },
 });
 
 (async () => {
-  app.post('/signup', async (req: express.Request, res: express.Response) => {
+  app.post('/auth/signup', async (req: express.Request, res: express.Response) => {
     const { username, password, email } = req.body || {};
 
     if (!username || !password || !email) {
@@ -61,11 +64,12 @@ const knex = knexClient({
       username,
       password: await bcrypt.hashSync(password, 10),
       email,
-      verified: false });
+      verified: false
+    });
     res.status(201).json({ success: true, message: 'User signed up successfully' });
   });
 
-  app.post('/login', async (req: express.Request, res: express.Response) => {
+  app.post('/auth/login', async (req: express.Request, res: express.Response) => {
     const { username, password } = req.body || {};
 
     if (!username || !password) {
@@ -76,7 +80,7 @@ const knex = knexClient({
     }
 
     const user = await knex('users')
-      .select('email', 'username', 'password')
+      .select('*')
       .where({ username })
       .first();
 
@@ -88,7 +92,7 @@ const knex = knexClient({
     }
 
     const isMatch = await bcrypt.compareSync(password, user.password);
-    
+
     if (!isMatch) {
       return res.status(400).json({
         success: false,
@@ -96,8 +100,62 @@ const knex = knexClient({
       })
     }
 
-    const token = jwt.sign(user, process.env.JWT_SECRET_KEY!, { expiresIn: '1h' });
+    const token = jwt.sign({
+      id: user.id,
+      email: user.email,
+      username: user.username,
+      verified: user.verified
+    }, process.env.JWT_SECRET_KEY!, { expiresIn: '1h' });
+
     return res.status(200).json({ success: true, token })
+  })
+
+  app.post('/auth/otp/send', isAuthenticated, async (req: express.Request, res: express.Response) => {
+    const user = req.user!;
+
+    if (
+      await knex('otps')
+        .where({ user_id: user.id })
+        .andWhere('expires_at', '>', knex.fn.now())
+        .first()
+    ) return res.status(400).json({ success: false, error: OTP_ALREADY_SENT })
+
+    const otp = generateOTP(6);
+    const success = await sendOTPMail(user.email, otp);
+
+    if (!success) {
+      return res.status(500).json({ success: false, error: OTP_SEND_FAILED })
+    }
+
+    await knex('otps').upsert({
+      user_id: user.id,
+      otp: otp,
+      expires_at: new Date(Date.now() + (3 * 60 * 1000)),
+      created_at: new Date()
+    })
+
+    return res.status(200).json({ success: true })
+  });
+
+  app.post('/auth/otp/verify', isAuthenticated, async (req: express.Request, res: express.Response) => {
+    const otp = req.body.otp;
+    if (!otp || otp.length != 6 || isNaN(otp))
+      return res.status(400).json({ success: false, error: INVALID_PARAMETERS })
+
+    if (
+      !await knex('otps')
+        .select('*')
+        .where({ user_id: req.user?.id, otp })
+        .andWhere('expires_at', '>', knex.fn.now())
+        .first()
+    ) return res.status(200).json({ success: false });
+
+    await knex.transaction(async (trx) => {
+      await trx('users').update({ verified: true }).where({ id: req.user!.id });
+      await trx('otps').delete().where({ user_id: req.user?.id });
+    });
+
+    return res.status(200).json({ success: true });
   })
 
   app.get('/', (req: express.Request, res: express.Response) => {
