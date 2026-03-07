@@ -1,171 +1,19 @@
 import 'dotenv/config';
 
 import express from 'express';
-import knexClient from 'knex';
-import jwt from 'jsonwebtoken';
-import bcrypt from 'bcrypt';
 import cors from 'cors';
-
-import { EMAIL_EXIST, INVALID_CREDENTIALS, INVALID_PARAMETERS, OTP_ALREADY_SENT, OTP_SEND_FAILED, USERNAME_EXISTS } from './errors.js';
-import { isAuthenticated } from './middlewares/isAuthenticated.js';
-import { generateOTP, sendOTPMail } from './utils.js';
+import path from 'path';
+import createRouter from 'express-file-routing';
 
 const app = express();
 app.use(cors());
 app.use(express.json());
 
-
-const knex = knexClient({
-  client: 'mysql2',
-  connection: {
-    host: process.env.SQL_HOST!,
-    port: Number(process.env.SQL_PORT!),
-    user: process.env.SQL_USERNAME!,
-    password: process.env.SQL_PASSWORD!,
-    database: process.env.SQL_DATABASE!,
-    timezone:'Z'
-  },
+/* Auto-register routes from the routes directory */
+await createRouter(app, {
+  directory: path.join(import.meta.dirname, 'routes')
 });
 
-(async () => {
-  app.post('/auth/signup', async (req: express.Request, res: express.Response) => {
-    const { username, password, email } = req.body || {};
-
-    if (!username || !password || !email) {
-      return res.status(400).json({
-        success: false,
-        error: INVALID_PARAMETERS
-      });
-    }
-
-    /* Check if the email is unique */
-    if (
-      await knex('users').where({ email }).first()
-    ) {
-      return res
-        .status(400)
-        .json({
-          success: false,
-          error: EMAIL_EXIST
-        })
-    }
-
-    /* Check if the username is unique */
-    if (
-      await knex('users').where({ username }).first()
-    ) {
-      return res
-        .status(400)
-        .json({
-          success: false,
-          error: USERNAME_EXISTS
-        });
-    }
-
-
-    await knex('users').insert({
-      username,
-      password: await bcrypt.hashSync(password, 10),
-      email,
-      verified: false
-    });
-    res.status(201).json({ success: true, message: 'User signed up successfully' });
-  });
-
-  app.post('/auth/login', async (req: express.Request, res: express.Response) => {
-    const { username, password } = req.body || {};
-
-    if (!username || !password) {
-      return res.status(400).json({
-        success: false,
-        error: INVALID_PARAMETERS
-      })
-    }
-
-    const user = await knex('users')
-      .select('*')
-      .where({ username })
-      .first();
-
-    if (!user) {
-      return res.status(400).json({
-        success: false,
-        error: INVALID_CREDENTIALS
-      })
-    }
-
-    const isMatch = await bcrypt.compareSync(password, user.password);
-
-    if (!isMatch) {
-      return res.status(400).json({
-        success: false,
-        error: INVALID_CREDENTIALS
-      })
-    }
-
-    const token = jwt.sign({
-      id: user.id,
-      email: user.email,
-      username: user.username,
-      verified: user.verified
-    }, process.env.JWT_SECRET_KEY!, { expiresIn: '1h' });
-
-    return res.status(200).json({ success: true, token })
-  })
-
-  app.post('/auth/otp/send', isAuthenticated, async (req: express.Request, res: express.Response) => {
-    const user = req.user!;
-
-    if (
-      await knex('otps')
-        .where({ user_id: user.id })
-        .andWhere('expires_at', '>', knex.fn.now())
-        .first()
-    ) return res.status(400).json({ success: false, error: OTP_ALREADY_SENT })
-
-    const otp = generateOTP(6);
-    const success = await sendOTPMail(user.email, otp);
-
-    if (!success) {
-      return res.status(500).json({ success: false, error: OTP_SEND_FAILED })
-    }
-
-    await knex('otps').upsert({
-      user_id: user.id,
-      otp: otp,
-      expires_at: new Date(Date.now() + (3 * 60 * 1000)),
-      created_at: new Date()
-    })
-
-    return res.status(200).json({ success: true })
-  });
-
-  app.post('/auth/otp/verify', isAuthenticated, async (req: express.Request, res: express.Response) => {
-    const otp = req.body.otp;
-    if (!otp || otp.length != 6 || isNaN(otp))
-      return res.status(400).json({ success: false, error: INVALID_PARAMETERS })
-
-    if (
-      !await knex('otps')
-        .select('*')
-        .where({ user_id: req.user?.id, otp })
-        .andWhere('expires_at', '>', knex.fn.now())
-        .first()
-    ) return res.status(200).json({ success: false });
-
-    await knex.transaction(async (trx) => {
-      await trx('users').update({ verified: true }).where({ id: req.user!.id });
-      await trx('otps').delete().where({ user_id: req.user?.id });
-    });
-
-    return res.status(200).json({ success: true });
-  })
-
-  app.get('/', (req: express.Request, res: express.Response) => {
-    res.send('Hello, World!');
-  });
-
-  app.listen(process.env.PORT || 3000, () => {
-    console.log('Server is running on port ' + (process.env.PORT || 3000));
-  });
-})();
+app.listen(process.env.PORT || 3000, () => {
+  console.log('Server is running on port ' + (process.env.PORT || 3000));
+});
