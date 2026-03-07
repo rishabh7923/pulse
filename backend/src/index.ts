@@ -4,13 +4,16 @@ import express from 'express';
 import knexClient from 'knex';
 import jwt from 'jsonwebtoken';
 import bcrypt from 'bcrypt';
+import cors from 'cors';
 
 import { EMAIL_EXIST, INVALID_CREDENTIALS, INVALID_PARAMETERS, OTP_ALREADY_SENT, OTP_SEND_FAILED, USERNAME_EXISTS } from './errors.js';
 import { isAuthenticated } from './middlewares/isAuthenticated.js';
 import { generateOTP, sendOTPMail } from './utils.js';
 
 const app = express();
+app.use(cors());
 app.use(express.json());
+
 
 const knex = knexClient({
   client: 'mysql2',
