@@ -23,7 +23,7 @@ const knex = knexClient({
     user: process.env.SQL_USERNAME!,
     password: process.env.SQL_PASSWORD!,
     database: process.env.SQL_DATABASE!,
-    timezone:'Z'
+    timezone: 'Z'
   },
 });
 
@@ -69,7 +69,20 @@ const knex = knexClient({
       email,
       verified: false
     });
-    res.status(201).json({ success: true, message: 'User signed up successfully' });
+
+    const user = await knex('users')
+      .select('*')
+      .where({ username })
+      .first();
+
+    const token = jwt.sign({
+      id: user.id,
+      email: user.email,
+      username: user.username,
+      verified: user.verified
+    }, process.env.JWT_SECRET_KEY!, { expiresIn: '1h' });
+
+    res.status(201).json({ success: true, message: 'User signed up successfully', username, token });
   });
 
   app.post('/auth/login', async (req: express.Request, res: express.Response) => {
@@ -110,7 +123,12 @@ const knex = knexClient({
       verified: user.verified
     }, process.env.JWT_SECRET_KEY!, { expiresIn: '1h' });
 
-    return res.status(200).json({ success: true, token })
+    return res.status(200).json({ success: true, message:'User logged in successfully', token, username })
+  })
+
+  app.get('/users/me', isAuthenticated, async (req: express.Request, res: express.Response) => {
+    const {username} = req.user!;
+    return res.status(200).json({ success: true, username })
   })
 
   app.post('/auth/otp/send', isAuthenticated, async (req: express.Request, res: express.Response) => {
