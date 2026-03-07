@@ -1,6 +1,7 @@
 import type { Handler } from 'express';
 import knex from '../../database/connection.js';
 import bcrypt from 'bcrypt';
+import jwt from 'jsonwebtoken';
 
 import { INVALID_PARAMETERS, EMAIL_EXIST, USERNAME_EXISTS } from '../../errors.js';
 
@@ -30,12 +31,19 @@ export const post: Handler = async (req, res) => {
         });
     }
 
-    await knex('users').insert({
+    const [userId] = await knex('users').insert({
         username,
         password: await bcrypt.hash(password, 10),
         email,
         verified: false
     });
 
-    return res.status(201).json({ success: true, message: 'User signed up successfully' });
+    const payload = { id: userId, username, email, verified: false }
+    const token = jwt.sign(payload, process.env.JWT_SECRET_KEY!, { expiresIn: '1h'})
+
+    return res.status(201).json({
+        success: true,
+        message: 'User signed up successfully',
+        data: { user: payload, token }
+    });
 };
