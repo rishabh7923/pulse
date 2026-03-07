@@ -1,71 +1,116 @@
-import React, { type ReactNode } from 'react'
-import { createContext, useContext, useEffect, useState } from 'react'
-import { useNavigate } from 'react-router-dom'
-
+/* eslint-disable react-refresh/only-export-components */
+import { createContext, useContext, useEffect, useState } from "react";
+import type { ReactNode } from "react";
+import axios from "@/utils/axios";
+import { loginApi, signupApi } from "@/api/auth";
+import type { LOGINSCHEMA, SIGNUPSCHEMA } from "@/types/auth";
 
 interface AuthContextType {
     user: string | null;
-    isAuthenticated: boolean
+    isAuthenticated: boolean;
     isLoading: boolean;
-
+    login: (creds: LOGINSCHEMA) => Promise<void>;
+    signup: (creds: SIGNUPSCHEMA) => Promise<void>;
+    logout: () => void;
 }
 
-const d = {
-    user: null,
-    isLoading: false,
-    isAuthenticated: false
-}
-const AuthContext = createContext<AuthContextType>(d)
-
+const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
 function AuthProvider({ children }: { children: ReactNode }) {
-    const navigate = useNavigate()
-    const [user, setUser] = useState<string | null>(null)
-    const [isAuthenticated, setIsAuthenticated] = useState<boolean>(false)
-    const [isLoading, setIsLoading] = useState<boolean>(false)
+    const [user, setUser] = useState<string | null>(null);
+    const [isLoading, setIsLoading] = useState(false);
+    const [isAuthChecking, setIsAuthChecking] = useState(true) 
 
-    function signup() {
+    const isAuthenticated = user !== null;
+
+    async function login(creds: LOGINSCHEMA) {
         try {
-            // send signup request
-            // if success
-            // update user and authenticated state
+            setIsLoading(true);
 
-        } catch {
-            // display error message
-        }
-        finally {
-            setIsLoading(false)
-        }
+            const data = (await loginApi(creds)) as {
+                token: string;
+                username: string;
+            };
 
-        function login() {
-            try {
-                // send signup request
-                // if success
-                // update user and authenticated state
-
-            } catch {
-                // display error message
+            localStorage.setItem("token", data.token);
+            setUser(data.username);
+        } catch (err: unknown) {
+            if (err instanceof Error) {
+                alert(err.message);
             }
-            finally {
-                setIsLoading(false)
-            }
-        }
-
-        function logout() {
-            // just remove token from local storage
+        } finally {
+            setIsLoading(false);
         }
     }
-    const value = { user, isAuthenticated, isLoading }
+
+    async function signup(creds: SIGNUPSCHEMA) {
+        try {
+            setIsLoading(true);
+
+            const data = (await signupApi(creds)) as {
+                token: string;
+                username: string;
+            };
+
+            localStorage.setItem("token", data.token);
+            setUser(data.username);
+        } catch (err: unknown) {
+            if (err instanceof Error) {
+                alert(err.message);
+            }
+        } finally {
+            setIsLoading(false);
+        }
+    }
+
+    function logout() {
+        localStorage.removeItem("token");
+        setUser(null);
+    }
+
     useEffect(() => {
-        // send req to server to check if user is logged in
-        // get token 
+        const checkAuth = async () => {
+            const token = localStorage.getItem("token")
+
+            if (!token) {
+                setIsAuthChecking(false)
+                return
+            }
+
+            try {
+                const res = await axios("/users/me")
+                setUser(res.data.username)
+            } catch {
+                localStorage.removeItem("token")
+                setUser(null)
+            } finally {
+                setIsAuthChecking(false)
+            }
+        }
+
+        checkAuth()
     }, [])
+
+    const value: AuthContextType = {
+        user,
+        isAuthenticated,
+        isLoading,
+        login,
+        signup,
+        logout,
+    };
 
     return (
         <AuthContext.Provider value={value}>
-
+            {isAuthChecking ? "Loading..." : children}
         </AuthContext.Provider>
-    )
+    );
 }
 
-export default AuthProvider
+export function useAuth() {
+    const context = useContext(AuthContext);
+    if (!context) throw new Error("useAuth must be used inside AuthProvider");
+    return context;
+}
+
+export default AuthProvider;

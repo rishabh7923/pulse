@@ -1,11 +1,13 @@
+import Container from '@/components/Container'
 import AuthForm from '@/features/auth/AuthForm'
-import React from 'react'
 
 function Login() {
     return (
-        <div className='max-w-275 min-h-vh'>
-            <AuthForm variant='login'/>
-        </div>
+        <Container>
+            <div className='flex items-center min-h-screen '>
+                <AuthForm variant='login' />
+            </div>
+        </Container>
     )
 }
 
