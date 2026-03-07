@@ -1,11 +1,13 @@
+import Container from '@/components/Container'
 import AuthForm from '@/features/auth/AuthForm'
-import React from 'react'
 
 function Signup() {
   return (
-    <div className='max-w-275 min-h-vh'>
-      <AuthForm variant='signup'/>
-    </div>
+    <Container>
+            <div className='flex items-center min-h-screen '>
+                <AuthForm variant='signup' />
+            </div>
+        </Container>
   )
 }
 

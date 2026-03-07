@@ -1,7 +1,5 @@
 import { Button } from '@/components/ui/button'
 import { FcGoogle } from "react-icons/fc";
-import React from 'react'
-import { FaDiscord } from 'react-icons/fa';
 import {
     Field,
     FieldGroup,
@@ -13,7 +11,10 @@ function AuthForm({ variant }: { variant: "login" | "signup" }) {
     const title = variant === "login" ? "Login" : "Create Account";
     const btnText = variant === "login" ? "Forgot password?" : "Already have an account?";
     const submitBtnText = variant === "login" ? "Login" : "Sign up";
-
+    function handleSubmit(e:SubmitEvent){
+        e.preventDefault();
+        
+    }
     return (
         <div className='flex flex-col lg:flex-row'>
             <div className='lg:w-1/2 text-left'>
@@ -70,7 +71,7 @@ function AuthForm({ variant }: { variant: "login" | "signup" }) {
                     </form>
                 </div>
             </div>
-            <div className="lg:w-1/2 bg-[url('/images/bg.jpg')] flex items-end relative bg-top bg-cover">
+            <div className="lg:w-1/2 bg-[url('/images/bg.jpg')] flex items-end relative bg-top bg-cover lg:min-h-screen">
                 <p className=' text-gray-200 text-left text-lg max-w-3xl lg:p-12'>
                     Lorem ipsum dolor sit porro et excepturi adipisci quaerat atque cumque quisquam hic non! Vitae ullam commodi nemo?
                 </p>

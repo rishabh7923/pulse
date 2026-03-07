@@ -1,3 +1,5 @@
+import { signupApi } from '@/api/auth';
+import type { SIGNUPSCHEMA } from '@/types/auth';
 import React, { type ReactNode } from 'react'
 import { createContext, useContext, useEffect, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
@@ -24,10 +26,12 @@ function AuthProvider({ children }: { children: ReactNode }) {
     const [isAuthenticated, setIsAuthenticated] = useState<boolean>(false)
     const [isLoading, setIsLoading] = useState<boolean>(false)
 
-    function signup() {
+    async function signup(creds:SIGNUPSCHEMA) {
         try {
             // send signup request
+            const res = await signupApi(creds);
             // if success
+            const
             // update user and authenticated state
 
         } catch {
