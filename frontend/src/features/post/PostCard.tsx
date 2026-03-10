@@ -1,6 +1,10 @@
-import { Heart, MessageCircle, Bookmark, MoreHorizontal } from "lucide-react";
+import { Heart, MessageCircle, Bookmark, Flag, Share2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { useState } from "react";
+import Comment from "./Comment/Comment";
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import { Badge } from "@/components/ui/badge";
+import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip";
 
 type PostCardProps = {
     id: string;
@@ -17,7 +21,7 @@ type PostCardProps = {
 
 export default function PostCard({
     author,
-    avatar,
+    // avatar,
     content,
     image,
     createdAt,
@@ -33,10 +37,10 @@ export default function PostCard({
             <div className="flex items-center justify-between">
                 <div className="flex items-center gap-3">
 
-                    <img
-                        src={avatar || "/avatar.png"}
-                        className="w-9 h-9 rounded-full object-cover"
-                    />
+                    <Avatar>
+                        <AvatarImage src="https://github.com/shadcn.png" />
+                        <AvatarFallback>CN</AvatarFallback>
+                    </Avatar>
 
                     <div className="flex flex-col leading-none">
                         <span className="font-medium text-sm">{author}</span>
@@ -47,9 +51,14 @@ export default function PostCard({
 
                 </div>
 
-                <Button variant="ghost" size="icon">
-                    <MoreHorizontal className="w-4 h-4" />
-                </Button>
+                <Tooltip>
+                    <TooltipTrigger>
+                        <Button className="hover:text-red-500" variant="ghost" size="icon">
+                            <Flag className="w-4 h-4" />
+                        </Button>
+                    </TooltipTrigger>
+                    <TooltipContent>Report this post</TooltipContent>
+                </Tooltip>
             </div>
 
             {/* Content */}
@@ -73,7 +82,7 @@ export default function PostCard({
                 <div className="flex items-center gap-4">
 
                     <button className="flex items-center gap-2 text-sm hover:text-red-500 transition">
-                        <Heart
+                        <Heart 
                             className={`w-4 h-4 ${liked ? "fill-red-500 text-red-500" : ""}`}
                         />
                         {likes}
@@ -82,6 +91,9 @@ export default function PostCard({
                     <button className="flex items-center gap-2 text-sm hover:text-blue-500 transition" onClick={() => setShowComments(s => !s)}>
                         <MessageCircle className="w-4 h-4" />
                         {comments}
+                    </button>
+                    <button className="flex items-center gap-2 text-sm hover:text-yellow-500 transition" >
+                        <Share2 className="w-4 h-4" />
                     </button>
 
                 </div>
@@ -107,8 +119,12 @@ export default function PostCard({
 
                     {/* comment list */}
                     <div className="space-y-2 text-sm">
-                        <p><b>Rahul</b> same teacher bro 😭</p>
-                        <p><b>Ankit</b> DBMS trauma</p>
+                        <p className="flex items-center">
+                            <span className="inline-block mr-2 text-lg font-medium">Comments </span>
+                            <Badge>25</Badge>
+                        </p>
+                        <Comment />
+                        <Comment />
                     </div>
 
                 </div>

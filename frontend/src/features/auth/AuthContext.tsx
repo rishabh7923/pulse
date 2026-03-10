@@ -1,9 +1,10 @@
 /* eslint-disable react-refresh/only-export-components */
 import { createContext, useContext, useEffect, useState } from "react";
 import type { ReactNode } from "react";
-import axios from "@/utils/axios";
+import type {LOGINSCHEMA, SIGNUPSCHEMA } from "@/types/auth";
 import { loginApi, signupApi } from "@/api/auth";
-import type { LOGINSCHEMA, SIGNUPSCHEMA } from "@/types/auth";
+import Loader from "@/components/Loader";
+import axios from "@/utils/axios";
 
 interface AuthContextType {
     user: string | null;
@@ -19,7 +20,7 @@ const AuthContext = createContext<AuthContextType | undefined>(undefined);
 function AuthProvider({ children }: { children: ReactNode }) {
     const [user, setUser] = useState<string | null>(null);
     const [isLoading, setIsLoading] = useState(false);
-    const [isAuthChecking, setIsAuthChecking] = useState(true) 
+    const [isAuthChecking, setIsAuthChecking] = useState(true)
 
     const isAuthenticated = user !== null;
 
@@ -27,7 +28,8 @@ function AuthProvider({ children }: { children: ReactNode }) {
         try {
             setIsLoading(true);
 
-            const { data } = (await loginApi(creds)) as any;
+            const response = await loginApi(creds);
+            const { data } = response;
 
             localStorage.setItem("token", data.token);
             setUser(data.user.username);
@@ -44,7 +46,8 @@ function AuthProvider({ children }: { children: ReactNode }) {
         try {
             setIsLoading(true);
 
-            const { data } = (await signupApi(creds)) as any;
+            const response = await signupApi(creds);
+            const { data } = response;
 
             localStorage.setItem("token", data.token);
             setUser(data.user.username);
@@ -97,7 +100,12 @@ function AuthProvider({ children }: { children: ReactNode }) {
 
     return (
         <AuthContext.Provider value={value}>
-            {isAuthChecking ? "Loading..." : children}
+            {isAuthChecking ?
+                <div className="min-h-screen w-full flex items-center justify-center">
+                    <Loader />
+                </div>
+                : children
+            }
         </AuthContext.Provider>
     );
 }

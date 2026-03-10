@@ -9,15 +9,14 @@ import {
 } from "@/components/ui/sidebar"
 import { Button } from "./ui/button"
 import MenuButton from "./MenuButton"
-import { Laugh, Newspaper } from "lucide-react"
-import { GiLoveHowl } from "react-icons/gi"
-import { MdOutlineAutoGraph } from "react-icons/md"
-import { BiHome, BiQuestionMark } from "react-icons/bi"
+import { ChartNoAxesCombined, FileQuestionMark, HeartPlus, Home, Laugh, NewspaperIcon } from "lucide-react"
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuLabel, DropdownMenuSeparator, DropdownMenuShortcut, DropdownMenuTrigger } from "./ui/dropdown-menu"
+import { useAuth } from "@/features/auth/AuthContext"
 
 export function AppSidebar() {
+  const {logout} = useAuth();
   return (
-    <Sidebar>
+    <Sidebar className="max-w-60">
       <SidebarHeader className="h-16" />
       <SidebarContent>
         <SidebarGroup>
@@ -25,42 +24,42 @@ export function AppSidebar() {
             <SidebarMenuItem>
               <MenuButton to="/">
                 <div className="flex gap-2 items-center h-6">
-                  <BiHome /> Home
+                  <Home /> Home
                 </div>
               </MenuButton>
             </SidebarMenuItem>
             <SidebarMenuItem>
               <MenuButton to="/popular">
                 <div className="flex gap-2 items-center h-6">
-                  <MdOutlineAutoGraph />Popular
+                  <ChartNoAxesCombined />Popular
                 </div>
               </MenuButton>
             </SidebarMenuItem>
             <SidebarMenuItem>
               <MenuButton to="/news">
                 <div className="flex gap-2 items-center h-6">
-                  <Newspaper /> Issues
+                  <NewspaperIcon /> Issues
                 </div>
               </MenuButton>
             </SidebarMenuItem>
             <SidebarMenuItem>
               <MenuButton to="/confessions">
                 <div className="flex gap-2 items-center h-6">
-                  <GiLoveHowl /> Confessions
+                  <HeartPlus /> Confessions
                 </div>
               </MenuButton>
             </SidebarMenuItem>
             <SidebarMenuItem>
               <MenuButton to="/memes">
                 <div className="flex gap-2 items-center h-6">
-                  <Laugh /> Memes
+                 <Laugh /> Memes
                 </div>
               </MenuButton>
             </SidebarMenuItem>
             <SidebarMenuItem>
               <MenuButton to="/questions">
                 <div className="flex gap-2 items-center h-6">
-                  <BiQuestionMark /> Questions
+                  <FileQuestionMark /> Questions
                 </div>
               </MenuButton>
             </SidebarMenuItem>
@@ -92,7 +91,7 @@ export function AppSidebar() {
             </DropdownMenuItem>
 
             <DropdownMenuSeparator />
-            <DropdownMenuItem className="cursor-pointer" role="button" onClick={() => dispatch(logout())}>
+            <DropdownMenuItem className="cursor-pointer" role="button" onClick={logout}>
               {/* <LogOut /> */}
               <span>Log out</span>
               <DropdownMenuShortcut>⇧⌘Q</DropdownMenuShortcut>

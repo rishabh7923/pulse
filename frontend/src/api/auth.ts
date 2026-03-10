@@ -1,8 +1,8 @@
 import { AxiosError } from "axios";
 import axios from "../utils/axios"
-import type { LOGINSCHEMA, SIGNUPSCHEMA } from "@/types/auth";
+import type { LoginResponse, LOGINSCHEMA, SignupResponse, SIGNUPSCHEMA } from "@/types/auth";
 
-export async function loginApi(creds: LOGINSCHEMA): Promise<object> {
+export async function loginApi(creds: LOGINSCHEMA): Promise<LoginResponse> {
   try {
     const { data } = await axios.post("auth/login", creds);
     return data;
@@ -14,7 +14,7 @@ export async function loginApi(creds: LOGINSCHEMA): Promise<object> {
   }
 }
 
-export async function signupApi(creds: SIGNUPSCHEMA): Promise<object> {
+export async function signupApi(creds: SIGNUPSCHEMA): Promise<SignupResponse> {
   try {
     const res = await axios("auth/signup", {
       method: "POST",
