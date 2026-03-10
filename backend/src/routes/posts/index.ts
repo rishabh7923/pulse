@@ -11,55 +11,45 @@ export const post: Handler[] = [
     isAuthenticated,
     upload.array("attachments"),
     async (req, res) => {
-        const {
-            content,
-        } = req.body || {};
-
+        const { content } = req.body || {};
         const files = Array.isArray(req.files) ? req.files : [];
-        const uploaded: UploadApiResponse[] = [];
 
-        for (const file of files) {
-            const uploadedFile = await cloudinary.uploader.upload(
-                `data:${file.mimetype};base64,${file.buffer.toString("base64")}`,
-                {
-                    folder: 'attachments'
-                }
+        const uploaded = await Promise.all(
+            files.map(file =>
+                cloudinary.uploader.upload(
+                    `data:${file.mimetype};base64,${file.buffer.toString("base64")}`,
+                    { folder: 'attachments' }
+                )
             )
-
-            uploaded.push(uploadedFile);
-        }
+        );
 
         const data = await knex.transaction(async (trx) => {
-            const [postId] = await trx("posts")
-                .insert({
-                    content,
-                    user_id: req.user!.id,
-                })
+            const [postId] = await trx("posts").insert({
+                content,
+                user_id: req.user!.id,
+            });
 
-            await trx("attachments")
-                .insert(
+            if (uploaded.length) {
+                await trx("attachments").insert(
                     uploaded.map(x => ({
                         type: "image",
                         url: x.secure_url,
-                        post_id: postId,
+                        post_id: postId
                     }))
-                )
+                );
+            }
 
-            const post = await trx("posts")
-                .where({ id: postId })
-                .first();
+            const [post, attachments] = await Promise.all([
+                trx("posts").where({ id: postId }).first(),
+                uploaded.length
+                    ? trx("attachments").select("url", "type", "id").where({ post_id: postId })
+                    : []
+            ]);
 
-            const attachments = await trx("attachments")
-                .select("url", "type", "id")
-                .where({ post_id: postId });
+            return { ...post, attachments };
+        });
 
-            return {
-                ...post,
-                attachments,
-            };
-        })
-
-        res.status(201).json({ success: true, data })
+        res.status(201).json({ success: true, data });
     }
 ]
 
@@ -79,7 +69,7 @@ export const get: Handler[] = [
             : await knex("posts").orderBy('created_at', 'desc').limit(limit)
 
         //fetch all the attachment in one go to avoid N + 1 query problem 
-        const attachments = posts.length 
+        const attachments = posts.length
             ? await knex("attachments").whereIn("post_id", posts.map(x => x.id))
             : [];
 
