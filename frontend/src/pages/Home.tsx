@@ -15,8 +15,10 @@ function Home() {
             <Container>
                 <div className='top-16 relative flex md:px-2'>
                     <div className='max-w-xl mx-auto min-h-screen px-2 lg:px-6'>
-                        <div className='mx-auto'>
+                        <div className='mx-auto border'>
+                            <div className='border-b py-4 px-2'>
                             <CreatePost />
+                            </div>
                             <PostFeed />
                         </div>
                     </div>

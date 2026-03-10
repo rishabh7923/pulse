@@ -1,4 +1,4 @@
-import { useState } from "react"
+import React, { useState } from "react"
 import { Button } from "@/components/ui/button"
 import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar"
 import ImageInput from "@/components/ImageInput"
@@ -24,6 +24,15 @@ export default function CreatePost() {
     setImages(selectedFiles.map(file => URL.createObjectURL(file)))
   }
 
+  function handleContentChange(e: React.ChangeEvent<HTMLTextAreaElement>) {
+    setContent(e.target.value)
+    if (!e.target) return
+    const el = e.target;
+    el.style.height = "auto"
+    el.style.height = el.scrollHeight + "px"
+
+  }
+
   function handleSubmit(e: React.FormEvent<HTMLFormElement>) {
     e.preventDefault()
     const formData = new FormData()
@@ -37,7 +46,7 @@ export default function CreatePost() {
   }
 
   return (
-    <div className="border-b p-4 flex gap-3">
+    <div className="flex gap-3">
 
       {/* Avatar */}
       <Avatar>
@@ -51,8 +60,8 @@ export default function CreatePost() {
         <textarea
           placeholder="What’s happening?"
           value={content}
-          onChange={(e) => setContent(e.target.value)}
-          className="border-b pb-2 w-full bg-transparent resize-none outline-none text-lg placeholder:text-muted-foreground focus:border-b-foreground transition-all ease-in"
+          onChange={handleContentChange}
+          className="border-b pb-2 w-full bg-transparent overflow-hidden resize-y wrap-break-word outline-none text-lg placeholder:text-muted-foreground focus:border-b-foreground transition-all ease-in"
         />
 
         {/* Image preview */}
@@ -70,11 +79,7 @@ export default function CreatePost() {
         <div className="flex items-center justify-between">
 
           {/* Actions */}
-          <div className="flex items-center gap-4 t">
-
-            {/* <button className="hover:bg-blue-500/10 p-2 rounded-full">
-              <Image size={18} />
-            </button> */}
+          <div className="flex items-center gap-4 ">
             <ImageInput onChange={handleChange} />
           </div>
 
