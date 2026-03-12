@@ -17,27 +17,40 @@ CREATE TABLE otps (
     FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE
 );
 
+-- Post related
+
 CREATE TABLE posts (
     id INT AUTO_INCREMENT PRIMARY KEY,
     content TEXT NOT NULL,
     user_id INT NOT NULL,
+    likes_count INT DEFAULT 0,
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
 
     FOREIGN KEY (user_id) REFERENCES users(id)
-)
+);
 
 CREATE TABLE reactions (
     id INT AUTO_INCREMENT PRIMARY KEY,
     post_id INT,
     user_id INT,
-    reaction_type ENUM('like', 'dislike'),
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
 
-    PRIMARY KEY (post_id, user_id),
+    UNIQUE KEY (post_id, user_id),
 
     FOREIGN KEY (post_id) REFERENCES posts(id),
     FOREIGN KEY (user_id) REFERENCES users(id)
-)
+);
+
+CREATE TABLE attachments (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    url TEXT NOT NULL,
+    post_id INT NOT NULL,
+    type ENUM('image') NOT NULL,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+
+    FOREIGN KEY (post_id) REFERENCES posts(id)
+);
+
 
 CREATE TABLE comments (
     id INT AUTO_INCREMENT PRIMARY KEY,
@@ -49,13 +62,3 @@ CREATE TABLE comments (
     FOREIGN KEY (post_id) REFERENCES posts(id),
     FOREIGN KEY (user_id) REFERENCES users(id)
 )
-
-CREATE TABLE attachments (
-    id INT AUTO_INCREMENT PRIMARY KEY,
-    url TEXT NOT NULL,
-    post_id INT NOT NULL,
-    type ENUM('image') NOT NULL,
-    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-
-    FOREIGN KEY (post_id) REFERENCES posts(id)
-);
