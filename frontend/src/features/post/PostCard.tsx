@@ -5,7 +5,7 @@ import Comment from "./Comment/Comment";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Badge } from "@/components/ui/badge";
 import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip";
-
+import type { Ref } from "react";
 type PostCardProps = {
     id: string;
     author: string;
@@ -17,10 +17,10 @@ type PostCardProps = {
     comments: number;
     liked?: boolean;
     saved?: boolean;
+    ref: Ref<HTMLDivElement>
 };
 
 export default function PostCard({
-    author,
     // avatar,
     content,
     image,
@@ -29,10 +29,11 @@ export default function PostCard({
     comments,
     liked,
     saved,
+    ref
 }: PostCardProps) {
     const [showComments, setShowComments] = useState(false)
     return (
-        <div className="hover:bg-card rounded-xl p-4 space-y-4 ">
+        <div className="hover:bg-card rounded-xl p-4 space-y-4 " ref={ref}>
 
             <div className="flex items-center justify-between">
                 <div className="flex items-center gap-3">
@@ -43,7 +44,7 @@ export default function PostCard({
                     </Avatar>
 
                     <div className="flex flex-col leading-none">
-                        <span className="font-medium text-sm">{author}</span>
+                        <span className="font-medium text-sm">notaprotoganist</span>
                         <span className="text-xs text-muted-foreground">
                             {createdAt}
                         </span>
@@ -82,7 +83,7 @@ export default function PostCard({
                 <div className="flex items-center gap-4">
 
                     <button className="flex items-center gap-2 text-sm hover:text-red-500 transition">
-                        <Heart 
+                        <Heart
                             className={`w-4 h-4 ${liked ? "fill-red-500 text-red-500" : ""}`}
                         />
                         {likes}

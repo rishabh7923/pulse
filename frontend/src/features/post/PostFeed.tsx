@@ -1,45 +1,45 @@
+import useInfinitePosts from './hooks/useInfinitePosts';
+import usePosts from './hooks/usePosts'
 import PostCard from './PostCard'
 import PostCardSkeleton from './PostCardSkeleton'
 
 function PostFeed() {
-    return (
-        <ul className='mt-2'>
-            <PostCard
-                id="1"
-                author="Anonymous"
-                createdAt="2h ago"
-                content="I swear our DBMS teacher thinks we are preparing for ISRO interviews."
-                image="https://images.unsplash.com/photo-1503023345310-bd7c1de61c7d"
-                likes={24}
-                comments={8}
-                liked={false}
-                saved={false}
-            />
-            <PostCard
-                id="1"
-                author="Anonymous"
-                createdAt="2h ago"
-                content="I swear our DBMS teacher thinks we are preparing for ISRO interviews."
-                image="https://images.unsplash.com/photo-1503023345310-bd7c1de61c7d"
-                likes={24}
-                comments={8}
-                liked={false}
-                saved={false}
-            />
-            <PostCard
-                id="1"
-                author="Anonymous"
-                createdAt="2h ago"
-                content="I swear our DBMS teacher thinks we are preparing for ISRO interviews."
-                image="https://images.unsplash.com/photo-1503023345310-bd7c1de61c7d"
-                likes={24}
-                comments={8}
-                liked={true}
-                saved={false}
-            />
+    const { data, isFetchingNextPage, status, error, fetchNextPage } = usePosts();
+    const lastPostRef = useInfinitePosts(fetchNextPage)
 
-            <PostCardSkeleton/>
-        </ul>)
+    if (status === "pending") {
+        return (
+            <ul className="mt-2 w-96 max-w-full">
+                <PostCardSkeleton />
+                <PostCardSkeleton />
+                <PostCardSkeleton />
+            </ul>
+        );
+    }
+
+    const posts = data?.pages.flatMap((page) => page.posts) ?? [];
+    return (
+        <ul className="mt-2 w-96 max-w-full">
+            {posts.map((post, i) => (
+                <PostCard
+                    key={post.id}
+                    id={post.id}
+                    author={post.user_id}
+                    createdAt="2h ago"
+                    content={post.content}
+                    image={post.attachments?.[0]?.url as unknown as string}
+                    likes={24}
+                    comments={8}
+                    liked={false}
+                    saved={false}
+                    ref={i === posts.length - 1 ? lastPostRef : null}
+                />
+            ))}
+
+            {isFetchingNextPage && <PostCardSkeleton />}
+            {status === "error" && <p>{error?.message}</p>}
+        </ul>
+    );
 }
 
 export default PostFeed
