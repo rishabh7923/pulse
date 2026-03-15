@@ -54,19 +54,38 @@ export const post: Handler[] = [
 ]
 
 export const get: Handler[] = [
+    isAuthenticated,
     async (req, res) => {
         const cursor = req.query.cursor as string | undefined;
         const [cursorCreatedAt, cursorId] = cursor ? cursor.split("_") : [undefined, undefined];
 
         //set default limit and make sure it can not be set more than 50
-        const limit = Math.min(parseInt(req.query.limit as string) || 10, 50);
+        const limit = Math.min(Number(req.query.limit) || 10, 50);
 
-        //cursor based fetching posts (best for feeds)
-        const posts = (cursorCreatedAt && cursorId)
-            ? await knex("posts").where('created_at', '<', cursorCreatedAt)
-                .orWhere(function () { this.where('created_at', '=', cursorCreatedAt).andWhere('id', '<', Number(cursorId)) })
-                .orderBy('created_at', 'desc').limit(limit)
-            : await knex("posts").orderBy('created_at', 'desc').limit(limit)
+        // based query, which we will build up step by step based on scenario
+        let postsQuery = knex("posts")
+            .select("posts.*", knex.raw("CASE WHEN reactions.id IS NOT NULL THEN true ELSE false END as liked"))
+            .leftJoin('reactions', function() {
+                this
+                    .on('reactions.post_id', '=', 'posts.id')
+                    .andOn('reactions.user_id', '=', knex.raw('?', [req.user!.id]))
+            })
+            .orderBy('posts.created_at', 'desc')
+            .orderBy('posts.id', 'desc')
+            .limit(limit);
+
+        /** if cursor id is provided */
+        if (cursorCreatedAt && cursorId) {
+            postsQuery = postsQuery.where(function () {
+                this.where('posts.created_at', '<', cursorCreatedAt)
+                    .orWhere(function () {
+                        this.where('posts.created_at', '=', cursorCreatedAt)
+                            .andWhere('posts.id', '<', Number(cursorId))
+                    })
+            });
+        }
+    
+        const posts = await postsQuery;
 
         //fetch all the attachment in one go to avoid N + 1 query problem 
         const attachments = posts.length

@@ -12,7 +12,7 @@ export const post: Handler[] = [isAuthenticated, async (req, res) => {
             .where({ user_id: user.id })
             .andWhere('expires_at', '>', knex.fn.now())
             .first()
-    ) return res.status(400).json({ success: false, error: OTP_ALREADY_SENT })
+    ) return res.status(429).json({ success: false, error: OTP_ALREADY_SENT })
 
     const otp = generateOTP(6);
     const success = await sendOTPMail(user.email, otp);
@@ -28,5 +28,5 @@ export const post: Handler[] = [isAuthenticated, async (req, res) => {
         created_at: new Date()
     })
 
-    return res.status(200).json({ success: true })
+    return res.status(204).end();
 }];
