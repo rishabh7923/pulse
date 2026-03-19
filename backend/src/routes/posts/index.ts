@@ -11,7 +11,7 @@ export const post: Handler[] = [
     isAuthenticated,
     upload.array("attachments"),
     async (req, res) => {
-        const { content } = req.body || {};
+        const { content, category_id } = req.body || {};
         const files = Array.isArray(req.files) ? req.files : [];
 
         const uploaded = await Promise.all(
@@ -26,6 +26,7 @@ export const post: Handler[] = [
         const data = await knex.transaction(async (trx) => {
             const [postId] = await trx("posts").insert({
                 content,
+                category_id: category_id,
                 user_id: req.user!.id,
             });
 

@@ -18,15 +18,24 @@ CREATE TABLE otps (
 );
 
 -- Post related
+CREATE TABLE category (
+    id INT PRIMARY KEY,
+    name VARCHAR(50) UNIQUE
+);
+
+INSERT INTO category
+VALUES (1, 'issues'), (2, 'confession'), (3, 'meme'), (4, 'question');
 
 CREATE TABLE posts (
     id INT AUTO_INCREMENT PRIMARY KEY,
     content TEXT NOT NULL,
     user_id INT NOT NULL,
+    category_id INT NOT NULL,
     likes_count INT DEFAULT 0,
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
 
-    FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE
+    FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE,
+    FOREIGN KEY (category_id) REFERENCES category(id)
 );
 
 CREATE TABLE reactions (
@@ -51,14 +60,12 @@ CREATE TABLE attachments (
     FOREIGN KEY (post_id) REFERENCES posts(id)
 );
 
-
 CREATE TABLE comments (
     id INT AUTO_INCREMENT PRIMARY KEY,
-    post_id INT,
-    user_id INT,
-    content TEXT,
+    content TEXT NOT NULL,
+    post_id INT NOT NULL,
+    user_id INT NOT NULL,
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-
     FOREIGN KEY (post_id) REFERENCES posts(id),
-    FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE
+    FOREIGN KEY (user_id) REFERENCES users(id)
 );

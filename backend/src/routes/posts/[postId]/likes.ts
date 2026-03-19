@@ -1,5 +1,4 @@
 import knex from "../../../database/connection.js"
-
 import type { Handler } from "express";
 import { isAuthenticated } from "../../../middlewares/isAuthenticated.js";
 import { INVALID_PARAMETERS } from "../../../errors.js";
@@ -8,7 +7,8 @@ export const post: Handler[] = [
     isAuthenticated,
     async (req, res) => {
         const { postId } = req.params;
-        if (!postId || !Number(postId)) return res.status(400).json({ success: false, error: INVALID_PARAMETERS })
+        if (!postId || !Number(postId))
+            return res.status(400).json({ success: false, error: INVALID_PARAMETERS })
 
         await knex.transaction(async (txn) => {
             const [id] = await txn('reactions')
