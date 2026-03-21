@@ -20,7 +20,7 @@ function PostDialog() {
                         </div>
                     )}
                 </div>
-                <div className="w-full h-full flex flex-col min-h-0 overflow-x-hidden">
+                <div className="w-full h-full flex flex-col pb-2 min-h-0 overflow-x-hidden">
                     {/* USER INFO */}
                     <div className="flex items-center gap-3 p-2">
                         <Avatar>

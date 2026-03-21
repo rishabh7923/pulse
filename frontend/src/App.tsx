@@ -11,6 +11,7 @@ import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { ReactQueryDevtools } from '@tanstack/react-query-devtools'
 import { Toaster } from 'sonner';
 import Verify from './pages/Verify';
+import PostComments from './features/post/PostComments';
 
 
 function App() {
@@ -26,7 +27,10 @@ function App() {
                   <ProtectRoute>
                     <Home />
                   </ProtectRoute>
-                } />
+                }>
+                  {/* Nested route */}
+                  <Route path='p/:pid' element={<PostComments />} />
+                </Route>
                 <Route path='/login' element={<Login />} />
                 <Route path='/signup' element={<Signup />} />
                 <Route path='/verify' element={<Verify />} />

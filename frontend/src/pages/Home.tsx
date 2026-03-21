@@ -1,15 +1,15 @@
-import { AppSidebar } from '@/components/AppSidebar';
-import Container from '@/components/Container';
+import { useEffect } from 'react';
+import { Outlet, useNavigate } from 'react-router-dom';
 import CreatePost from '@/features/post/CreatePost';
-import { SidebarProvider } from '@/components/ui/sidebar';
-import Bottombar from '@/components/Bottombar';
+import { useAuth } from '@/features/auth/AuthContext';
 import PostFeed from '@/features/post/PostFeed';
 import Topbar from '@/components/Topbar';
-import { useEffect } from 'react';
-import { useAuth } from '@/features/auth/AuthContext';
-import { toast } from 'sonner';
-import { useNavigate } from 'react-router-dom';
+import Bottombar from '@/components/Bottombar';
+import Container from '@/components/Container';
+import { SidebarProvider } from '@/components/ui/sidebar';
 import TrendingSection from '@/components/TrendingSection';
+import { toast } from 'sonner';
+import FloatingSidebar from '@/components/FloatingSidebar';
 
 function Home() {
     const navigate = useNavigate();
@@ -27,10 +27,10 @@ function Home() {
     }, [user, isAuthenticated, navigate])
     return (
         <SidebarProvider>
-            <AppSidebar />
             <Topbar />
             <Container>
                 <div className='top-16 relative flex md:px-2'>
+                    <FloatingSidebar/>
                     <div className='max-w-120 w-full mx-auto min-h-screen  border'>
                         <div className='mx-auto'>
                             <div className='border-b py-4 px-2'>
@@ -39,8 +39,9 @@ function Home() {
                             <PostFeed />
                         </div>
                     </div>
-                   <TrendingSection/>
+                    <TrendingSection />
                 </div>
+                <Outlet />
                 <Bottombar />
             </Container>
         </SidebarProvider>

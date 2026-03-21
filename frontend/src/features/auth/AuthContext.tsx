@@ -11,6 +11,7 @@ interface AuthContextType {
     user: User | null;
     isAuthenticated: boolean;
     isLoading: boolean;
+    isVerified:boolean;
     login: (creds: LOGINSCHEMA) => Promise<void>;
     signup: (creds: SIGNUPSCHEMA) => Promise<void>;
     logout: () => void;
@@ -24,6 +25,7 @@ function AuthProvider({ children }: { children: ReactNode }) {
     const [isAuthChecking, setIsAuthChecking] = useState(true)
 
     const isAuthenticated = user !== null;
+    const isVerified = user?.verified === 1;
 
     async function login(creds: LOGINSCHEMA) {
         try {
@@ -93,6 +95,7 @@ function AuthProvider({ children }: { children: ReactNode }) {
         user,
         isAuthenticated,
         isLoading,
+        isVerified,
         login,
         signup,
         logout,

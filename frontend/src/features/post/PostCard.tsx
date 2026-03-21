@@ -3,13 +3,9 @@ import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip";
 import type { Ref } from "react";
 import LikeButton from "./LikeButton";
-import useMediaQuery from "@/hooks/useMediaQuery";
-import { Drawer, DrawerContent, DrawerTrigger } from "@/components/ui/drawer";
-import { Dialog, DialogContent, DialogTrigger } from "@/components/ui/dialog";
 import { Bookmark, Flag, Share2 } from "lucide-react";
 import CommentButton from "./Comment/CommentButton";
-import MobileScreenComments from "./Comment/MobileScreenComments";
-import PostDialog from "./PostDialog";
+import {useNavigate } from "react-router-dom";
 
 type PostCardProps = {
     id: string;
@@ -32,13 +28,11 @@ export default function PostCard({
     image,
     createdAt,
     likes,
-    comments,
     liked,
     saved,
     ref
 }: PostCardProps) {
-    const isDesktop = useMediaQuery("(min-width: 768px)");
-
+    const navigate = useNavigate();
     return (
         <div className="hover:bg-card p-4 space-y-4" ref={ref}>
 
@@ -90,20 +84,7 @@ export default function PostCard({
                 <div className="flex items-center gap-4">
 
                     <LikeButton likes={likes} liked={Boolean(liked)} postId={id} />
-                    {isDesktop ? <Dialog>
-                        <DialogTrigger asChild>
-                            <CommentButton onClick={() => 1} />
-                        </DialogTrigger>
-                        <DialogContent className="w-screen h-screen max-w-none sm:max-w-none bg-transparent">                            <PostDialog />
-                        </DialogContent>
-                    </Dialog> : <Drawer>
-                        <DrawerTrigger asChild>
-                            <CommentButton onClick={() => 1} />
-                        </DrawerTrigger>
-                        <DrawerContent>
-                            <MobileScreenComments />
-                        </DrawerContent>
-                    </Drawer>}
+                    <CommentButton onClick={() => navigate(`p/${'ge'}`)} />
                     <button className="flex items-center gap-2 text-sm hover:text-yellow-500 transition" >
                         <Share2 className="w-4 h-4" />
                     </button>
