@@ -10,6 +10,7 @@ import { TooltipProvider } from './components/ui/tooltip';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { ReactQueryDevtools } from '@tanstack/react-query-devtools'
 import { Toaster } from 'sonner';
+import Verify from './pages/Verify';
 
 
 function App() {
@@ -28,6 +29,7 @@ function App() {
                 } />
                 <Route path='/login' element={<Login />} />
                 <Route path='/signup' element={<Signup />} />
+                <Route path='/verify' element={<Verify />} />
               </Routes>
             </TooltipProvider>
           </ThemeProvider>

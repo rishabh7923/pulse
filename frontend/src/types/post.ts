@@ -10,7 +10,8 @@ export type Post = {
     created_at:string;
     content: string;
     attachments: PostImage[];
-
+    liked:boolean
+    likes_count:number
 }
 
 export type PostImage = {

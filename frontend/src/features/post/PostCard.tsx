@@ -1,11 +1,16 @@
-import { Heart, MessageCircle, Bookmark, Flag, Share2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import { useState } from "react";
-import Comment from "./Comment/Comment";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
-import { Badge } from "@/components/ui/badge";
 import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip";
 import type { Ref } from "react";
+import LikeButton from "./LikeButton";
+import useMediaQuery from "@/hooks/useMediaQuery";
+import { Drawer, DrawerContent, DrawerTrigger } from "@/components/ui/drawer";
+import { Dialog, DialogContent, DialogTrigger } from "@/components/ui/dialog";
+import { Bookmark, Flag, Share2 } from "lucide-react";
+import CommentButton from "./Comment/CommentButton";
+import MobileScreenComments from "./Comment/MobileScreenComments";
+import PostDialog from "./PostDialog";
+
 type PostCardProps = {
     id: string;
     author: string;
@@ -15,13 +20,14 @@ type PostCardProps = {
     createdAt: string;
     likes: number;
     comments: number;
-    liked?: boolean;
+    liked: boolean;
     saved?: boolean;
     ref: Ref<HTMLDivElement>
 };
 
 export default function PostCard({
     // avatar,
+    id,
     content,
     image,
     createdAt,
@@ -31,9 +37,10 @@ export default function PostCard({
     saved,
     ref
 }: PostCardProps) {
-    const [showComments, setShowComments] = useState(false)
+    const isDesktop = useMediaQuery("(min-width: 768px)");
+
     return (
-        <div className="hover:bg-card rounded-xl p-4 space-y-4 " ref={ref}>
+        <div className="hover:bg-card p-4 space-y-4" ref={ref}>
 
             <div className="flex items-center justify-between">
                 <div className="flex items-center gap-3">
@@ -72,7 +79,7 @@ export default function PostCard({
                 <div className="overflow-hidden rounded-lg border">
                     <img
                         src={image}
-                        className="w-full max-h-100 object-cover"
+                        className="w-full max-h-100 object-contain"
                     />
                 </div>
             )}
@@ -82,17 +89,22 @@ export default function PostCard({
 
                 <div className="flex items-center gap-4">
 
-                    <button className="flex items-center gap-2 text-sm hover:text-red-500 transition">
-                        <Heart
-                            className={`w-4 h-4 ${liked ? "fill-red-500 text-red-500" : ""}`}
-                        />
-                        {likes}
-                    </button>
-
-                    <button className="flex items-center gap-2 text-sm hover:text-blue-500 transition" onClick={() => setShowComments(s => !s)}>
-                        <MessageCircle className="w-4 h-4" />
-                        {comments}
-                    </button>
+                    <LikeButton likes={likes} liked={Boolean(liked)} postId={id} />
+                    {isDesktop ? <Dialog>
+                        <DialogTrigger asChild>
+                            <CommentButton onClick={() => 1} />
+                        </DialogTrigger>
+                        <DialogContent className="w-screen h-screen max-w-none sm:max-w-none bg-transparent">
+                            <PostDialog />
+                        </DialogContent>
+                    </Dialog> : <Drawer>
+                        <DrawerTrigger asChild>
+                            <CommentButton onClick={() => 1} />
+                        </DrawerTrigger>
+                        <DrawerContent>
+                            <MobileScreenComments />
+                        </DrawerContent>
+                    </Drawer>}
                     <button className="flex items-center gap-2 text-sm hover:text-yellow-500 transition" >
                         <Share2 className="w-4 h-4" />
                     </button>
@@ -106,30 +118,6 @@ export default function PostCard({
                 </button>
 
             </div>
-            {showComments && (
-                <div className="border-t pt-3 space-y-3">
-
-                    {/* comment input */}
-                    <div className="flex gap-2">
-                        <input
-                            placeholder="Write a comment..."
-                            className="flex-1 border rounded-lg px-3 py-2 text-sm"
-                        />
-                        <Button className="text-sm">Post</Button>
-                    </div>
-
-                    {/* comment list */}
-                    <div className="space-y-2 text-sm">
-                        <p className="flex items-center">
-                            <span className="inline-block mr-2 text-lg font-medium">Comments </span>
-                            <Badge>25</Badge>
-                        </p>
-                        <Comment />
-                        <Comment />
-                    </div>
-
-                </div>
-            )}
         </div>
     );
 }

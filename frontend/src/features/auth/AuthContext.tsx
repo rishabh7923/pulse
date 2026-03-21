@@ -1,13 +1,14 @@
 /* eslint-disable react-refresh/only-export-components */
 import { createContext, useContext, useEffect, useState } from "react";
 import type { ReactNode } from "react";
-import type {LOGINSCHEMA, SIGNUPSCHEMA } from "@/types/auth";
+import type { LOGINSCHEMA, SIGNUPSCHEMA } from "@/types/auth";
 import { loginApi, signupApi } from "@/api/auth";
 import Loader from "@/components/Loader";
 import axios from "@/utils/axios";
+import type { User } from "@/types/user";
 
 interface AuthContextType {
-    user: string | null;
+    user: User | null;
     isAuthenticated: boolean;
     isLoading: boolean;
     login: (creds: LOGINSCHEMA) => Promise<void>;
@@ -18,7 +19,7 @@ interface AuthContextType {
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
 function AuthProvider({ children }: { children: ReactNode }) {
-    const [user, setUser] = useState<string | null>(null);
+    const [user, setUser] = useState<User | null>(null);
     const [isLoading, setIsLoading] = useState(false);
     const [isAuthChecking, setIsAuthChecking] = useState(true)
 
@@ -27,12 +28,11 @@ function AuthProvider({ children }: { children: ReactNode }) {
     async function login(creds: LOGINSCHEMA) {
         try {
             setIsLoading(true);
-
             const response = await loginApi(creds);
             const { data } = response;
 
             localStorage.setItem("token", data.token);
-            setUser(data.user.username);
+            setUser(data.user);
         } catch (err: unknown) {
             if (err instanceof Error) {
                 alert(err.message);
@@ -50,7 +50,7 @@ function AuthProvider({ children }: { children: ReactNode }) {
             const { data } = response;
 
             localStorage.setItem("token", data.token);
-            setUser(data.user.username);
+            setUser(data.user);
 
         } catch (err: unknown) {
             if (err instanceof Error) {
@@ -77,7 +77,7 @@ function AuthProvider({ children }: { children: ReactNode }) {
 
             try {
                 const res = await axios("/users/me")
-                setUser(res.data.data.user.username)
+                setUser(() => res.data.data.user)
             } catch {
                 localStorage.removeItem("token")
                 setUser(null)

@@ -29,10 +29,33 @@ export async function createPostApi(data: CreatePost): Promise<CreatePostRespons
 }
 export async function getPostsApi(cursor: string | null = null): Promise<GetPostsResponse> {
     try {
-            const url = cursor ? `/posts?cursor=${cursor}` : `/posts`;
+        const url = cursor ? `/posts?cursor=${cursor}` : `/posts`;
         const res = await axios(url);
         return { posts: res.data.data.posts as unknown as Post[], nextCursor: res.data.pagination.next_cursor as string | null }
     } catch (e: unknown) {
+        if (e instanceof AxiosError) {
+            throw new Error(e.response?.data.error.message)
+        }
+        throw new Error("Something went wrong");
+    }
+}
+export async function likePostApi(postId: string) {
+    try {
+        await axios.post(`posts/${postId}/likes`);
+        }
+    catch (e: unknown) {
+        if (e instanceof AxiosError) {
+            throw new Error(e.response?.data.error.message)
+        }
+        throw new Error("Something went wrong");
+    }
+}
+
+export async function unlikePostApi(postId:string){
+    try {
+        await axios.delete(`posts/${postId}/likes`);
+        }
+    catch (e: unknown) {
         if (e instanceof AxiosError) {
             throw new Error(e.response?.data.error.message)
         }

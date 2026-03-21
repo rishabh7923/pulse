@@ -1,3 +1,5 @@
+import type { User } from "./user";
+
 export type SIGNUPSCHEMA = {
     username: string;
     email: string;
@@ -11,12 +13,7 @@ export type LoginResponse  = {
     message:string;
     data: {
         token: string;
-        user: {
-            id: string;
-            email: string;
-            username: string;
-            verified: boolean;
-        }
+        user: User
     }
 }
 

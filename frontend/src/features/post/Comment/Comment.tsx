@@ -8,12 +8,12 @@ function Comment() {
                     <AvatarImage src="https://github.com/shadcn.png" />
                     <AvatarFallback>CN</AvatarFallback>
                 </Avatar>
-                <span className='font-semibold'>notaprotagonist</span>
-                <div className='text-muted-foreground'>
+                <span className="font-semibold text-sm">notaprotoganist</span>
+                <div className='text-muted-foreground text-xs'>
                     19 mins ago
                 </div>
             </div>
-            <p className='mt-1'>
+            <p className='mt-1 text-sm'>
                 Lorem, ipsum dolor sit amet consectetur adipisicing elit. Nam, optio.
             </p>
         </div>
