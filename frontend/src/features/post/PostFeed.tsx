@@ -9,7 +9,7 @@ function PostFeed() {
 
     if (status === "pending") {
         return (
-            <ul className="mt-2 w-96 max-w-full">
+            <ul className="mt-2 w-full">
                 <PostCardSkeleton />
                 <PostCardSkeleton />
                 <PostCardSkeleton />
@@ -19,7 +19,7 @@ function PostFeed() {
 
     const posts = data?.pages.flatMap((page) => page.posts) ?? [];
     return (
-        <ul className="mt-2 w-96 max-w-full">
+        <ul className="mx-auto w-full">
             {posts.map((post, i) => (
                 <PostCard
                     key={post.id}
@@ -28,9 +28,9 @@ function PostFeed() {
                     createdAt="2h ago"
                     content={post.content}
                     image={post.attachments?.[0]?.url as unknown as string}
-                    likes={24}
+                    likes={post.likes_count}
                     comments={8}
-                    liked={false}
+                    liked={post.liked}
                     saved={false}
                     ref={i === posts.length - 1 ? lastPostRef : null}
                 />

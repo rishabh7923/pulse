@@ -33,7 +33,7 @@ function AuthForm({ variant }: { variant: "login" | "signup" }) {
     if (isAuthenticated) return <Navigate to="/" replace />
     return (
         <div className='flex flex-col lg:flex-row'>
-            <div className='lg:w-1/2 text-left'>
+            <div className='lg:w-1/2 text-left justify-center'>
                 <div className='lg:px-20'>
                     <div className='w-10 h-10 border border-amber-600 my-8'></div>
                     <h3 className='text-3xl font-semibold'>
@@ -89,7 +89,7 @@ function AuthForm({ variant }: { variant: "login" | "signup" }) {
                     </form>
                 </div>
             </div>
-            <div className="lg:w-1/2 bg-[url('/images/bg.jpg')] flex items-end relative bg-top bg-cover lg:min-h-screen">
+            <div className="hidden md:flex lg:w-1/2 bg-[url('/images/bg.jpg')] items-end relative bg-top bg-cover lg:min-h-screen">
                 <p className=' text-gray-200 text-left text-lg max-w-3xl lg:p-12'>
                     Lorem ipsum dolor sit porro et excepturi adipisci quaerat atque cumque quisquam hic non! Vitae ullam commodi nemo?
                 </p>

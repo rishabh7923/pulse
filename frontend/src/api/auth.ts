@@ -29,3 +29,30 @@ export async function signupApi(creds: SIGNUPSCHEMA): Promise<SignupResponse> {
     throw err;
   }
 }
+
+export async function sendOtpApi() {
+  try {
+    await axios.post("auth/otp/send")
+  } catch (err) {
+    if (err instanceof AxiosError) {
+      throw new Error(err.response?.data.error.message || "something went wrong while sending otp");
+    }
+    throw err;
+  }
+}
+
+export async function verifyOtpApi(otp: string) {
+  try {
+    await axios("auth/otp/verify", {
+      method: "POST",
+      data: {
+        otp
+      }
+    })
+  } catch (err) {
+    if (err instanceof AxiosError) {
+      throw new Error(err.response?.data.error.message || "something went wrong while sending otp");
+    }
+    throw err;
+  }
+}
