@@ -94,8 +94,7 @@ export default function PostCard({
                         <DialogTrigger asChild>
                             <CommentButton onClick={() => 1} />
                         </DialogTrigger>
-                        <DialogContent className="w-screen h-screen max-w-none sm:max-w-none bg-transparent">
-                            <PostDialog />
+                        <DialogContent className="w-screen h-screen max-w-none sm:max-w-none bg-transparent">                            <PostDialog />
                         </DialogContent>
                     </Dialog> : <Drawer>
                         <DrawerTrigger asChild>
