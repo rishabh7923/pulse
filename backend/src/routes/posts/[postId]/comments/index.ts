@@ -1,8 +1,8 @@
-import knex from '../../../database/connection.js'
+import knex from '../../../../database/connection.js'
 import type { Handler } from 'express';
 import { z } from "zod";
-import { isAuthenticated } from '../../../middlewares/isAuthenticated.js';
-import { INVALID_PARAMETERS } from '../../../errors.js';
+import { isAuthenticated } from '../../../../middlewares/isAuthenticated.js';
+import { INVALID_PARAMETERS } from '../../../../errors.js';
 
 export const post: Handler[] = [
     isAuthenticated,

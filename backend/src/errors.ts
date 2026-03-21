@@ -42,3 +42,8 @@ export const OTP_ALREADY_SENT: ApiError = {
   code: 'OTP_ALREADY_SENT',
   message: 'An OTP has already been sent. Please wait until it expires.',
 };
+
+export const NOT_FOUND: ApiError = {
+  code: 'NOT_FOUND',
+  message: 'Requested resource is not found'
+}
