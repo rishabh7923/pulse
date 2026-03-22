@@ -6,7 +6,6 @@ import PostFeed from '@/features/post/PostFeed';
 import Topbar from '@/components/Topbar';
 import Bottombar from '@/components/Bottombar';
 import Container from '@/components/Container';
-import { SidebarProvider } from '@/components/ui/sidebar';
 import TrendingSection from '@/components/TrendingSection';
 import { toast } from 'sonner';
 import FloatingSidebar from '@/components/FloatingSidebar';
@@ -25,26 +24,25 @@ function Home() {
             })
         }
     }, [user, isAuthenticated, navigate])
-    return (
-        <SidebarProvider>
-            <Topbar />
-            <Container>
-                <div className='top-16 relative flex md:px-2'>
-                    <FloatingSidebar/>
-                    <div className='max-w-120 w-full mx-auto min-h-screen  border'>
-                        <div className='mx-auto'>
-                            <div className='border-b py-4 px-2'>
-                                <CreatePost />
-                            </div>
-                            <PostFeed />
+    return (<>
+        <Topbar />
+        <Container>
+            <div className='top-16 relative flex md:px-2'>
+                <FloatingSidebar />
+                <div className='max-w-120 w-full mx-auto min-h-screen  border'>
+                    <div className='mx-auto'>
+                        <div className='border-b py-4 px-2'>
+                            <CreatePost />
                         </div>
+                        <PostFeed />
                     </div>
-                    <TrendingSection />
                 </div>
-                <Outlet />
-                <Bottombar />
-            </Container>
-        </SidebarProvider>
+                <TrendingSection />
+            </div>
+            <Outlet />
+            <Bottombar />
+        </Container>
+    </>
     )
 }
 

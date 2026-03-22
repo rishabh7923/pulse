@@ -1,14 +1,7 @@
 import { AxiosError } from "axios";
 import axios from "../utils/axios"
+import type { addCommentSchema, Comment, getPostCommentsSchema } from "@/types/comment";
 
-type addCommentSchema = {
-    postId: string,
-    content: string
-}
-
-type getPostCommentsSchema = {
-    postId: string
-}
 export async function addCommentApi(data: addCommentSchema) {
     try {
         await axios.post(`posts/${data.postId}/comments`, {
@@ -22,9 +15,9 @@ export async function addCommentApi(data: addCommentSchema) {
     }
 }
 
-export async function getCommentsApi({ postId }: getPostCommentsSchema) {
+export async function getCommentsApi({ postId }: getPostCommentsSchema): Promise<Comment[]> {
     try {
-        const res = await axios.get(`posts/${postId}`)
+        const res = await axios.get(`posts/${postId}/comments`)
         return res.data.data.comments;
     } catch (e: unknown) {
         if (e instanceof AxiosError) {

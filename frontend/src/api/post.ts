@@ -1,18 +1,14 @@
 import { AxiosError } from "axios"
 import axios from "../utils/axios"
-import type { CreatePostResponse, Post } from "@/types/post"
+import type { CreatePostResponse, CreatePostSchema, Post } from "@/types/post"
 
-type CreatePost = {
-    content: string,
-    attachments: File[]
-}
 
 type GetPostsResponse = {
     posts: Post[],
     nextCursor: string | null
 }
 
-export async function createPostApi(data: CreatePost): Promise<CreatePostResponse> {
+export async function createPostApi(data: CreatePostSchema): Promise<CreatePostResponse> {
     try {
         const res = await axios("/posts", {
             method: "POST",

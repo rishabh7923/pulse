@@ -1,11 +1,10 @@
-import { Button } from "@/components/ui/button";
-import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
-import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip";
 import type { Ref } from "react";
+import { useNavigate } from "react-router-dom";
+import { Bookmark, Share2 } from "lucide-react";
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import CommentButton from "./comment/CommentButton";
 import LikeButton from "./LikeButton";
-import { Bookmark, Flag, Share2 } from "lucide-react";
-import CommentButton from "./Comment/CommentButton";
-import {useNavigate } from "react-router-dom";
+import { PostCardDropDown } from "./PostCardDropDown";
 
 type PostCardProps = {
     id: string;
@@ -52,15 +51,7 @@ export default function PostCard({
                     </div>
 
                 </div>
-
-                <Tooltip>
-                    <TooltipTrigger>
-                        <Button className="hover:text-red-500" variant="ghost" size="icon">
-                            <Flag className="w-4 h-4" />
-                        </Button>
-                    </TooltipTrigger>
-                    <TooltipContent>Report this post</TooltipContent>
-                </Tooltip>
+                <PostCardDropDown />
             </div>
 
             {/* Content */}
@@ -84,7 +75,7 @@ export default function PostCard({
                 <div className="flex items-center gap-4">
 
                     <LikeButton likes={likes} liked={Boolean(liked)} postId={id} />
-                    <CommentButton onClick={() => navigate(`p/${'ge'}`)} />
+                    <CommentButton onClick={() => navigate(`p/${id}`)} />
                     <button className="flex items-center gap-2 text-sm hover:text-yellow-500 transition" >
                         <Share2 className="w-4 h-4" />
                     </button>

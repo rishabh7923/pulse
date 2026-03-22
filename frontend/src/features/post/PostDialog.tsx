@@ -1,10 +1,12 @@
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
-import Comment from "./Comment/Comment";
-import AddComment from "./Comment/AddComment";
+import Comment from "./comment/Comment";
+import AddComment from "./comment/AddComment";
 import { ScrollArea } from "@/components/ui/scroll-area";
+import useComments from "./comment/hooks/useComments";
 
 const image = "";
 function PostDialog() {
+    const { comments, status } = useComments();
     return (
         <div className="hidden md:block h-full p-4 overflow-hidden">
             <div className="h-full w-4/5 mx-auto flex min-h-0 bg-background rounded-sm overflow-hidden">
@@ -49,13 +51,7 @@ function PostDialog() {
                         </div>
 
                         <ul className="divide-y">
-                            <Comment />
-                            <Comment />
-                            <Comment />
-                            <Comment />
-                            <Comment />
-                            <Comment />
-                            <Comment />
+                           {status == "success" && comments.map(c => <Comment comment={c}/>)}
                         </ul>
                     </ScrollArea>
 

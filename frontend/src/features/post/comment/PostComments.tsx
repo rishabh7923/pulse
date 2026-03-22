@@ -2,9 +2,9 @@ import { lazy, Suspense } from "react";
 import { useNavigate } from "react-router-dom";
 import { Dialog, DialogContent } from "@/components/ui/dialog";
 import { Drawer, DrawerContent } from "@/components/ui/drawer";
-import MobileScreenComments from "./Comment/MobileScreenComments";
+import MobileScreenComments from "./CommentsDrawer";
 import useMediaQuery from "@/hooks/useMediaQuery";
-const PostDialog = lazy(() => import("./PostDialog"));
+const PostDialog = lazy(() => import("../PostDialog"));
 
 function PostComments() {
     const isDesktop = useMediaQuery("(min-width: 768px)");
