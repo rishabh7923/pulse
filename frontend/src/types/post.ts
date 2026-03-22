@@ -4,6 +4,12 @@ export type CreatePostResponse = {
     data: Post
 }
 
+
+export type CreatePostSchema = {
+    content: string,
+    category_id:string,
+    attachments: File[]
+}
 export type Post = {
     id: string;
     user_id: string;

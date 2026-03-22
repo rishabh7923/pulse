@@ -11,7 +11,7 @@ import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { ReactQueryDevtools } from '@tanstack/react-query-devtools'
 import { Toaster } from 'sonner';
 import Verify from './pages/Verify';
-import PostComments from './features/post/PostComments';
+import PostComments from './features/post/comment/PostComments';
 
 
 function App() {

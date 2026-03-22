@@ -3,6 +3,8 @@ import { Button } from "@/components/ui/button"
 import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar"
 import ImageInput from "@/components/ImageInput"
 import useCreatePost from "./hooks/useCreatePost"
+import type { CreatePostSchema } from "@/types/post"
+import { SelectPostCategory } from "./SelectPostCategory"
 
 export default function CreatePost() {
   const [content, setContent] = useState("")
@@ -42,7 +44,7 @@ export default function CreatePost() {
     files.forEach(file => {
       formData.append("attachments", file)
     })
-    createPost(formData as unknown as { content: string, attachments: File[] });
+    createPost(formData as unknown as CreatePostSchema);
   }
 
   return (
@@ -81,6 +83,7 @@ export default function CreatePost() {
           {/* Actions */}
           <div className="flex items-center gap-4 ">
             <ImageInput onChange={handleChange} />
+            <SelectPostCategory/>
           </div>
 
           {/* Post Button */}

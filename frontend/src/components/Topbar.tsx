@@ -1,10 +1,6 @@
-import ToggleTheme from '@/components/ToggleTheme';
 import { InputGroup, InputGroupAddon, InputGroupInput } from '@/components/ui/input-group';
-import { CupSoda, Plus, Search } from 'lucide-react';
-import { Button } from '@/components/ui/button';
-import { Tooltip, TooltipContent, TooltipTrigger } from '@/components/ui/tooltip';
-import { DialogContent, DialogTrigger, Dialog } from './ui/dialog';
-import CreatePost from '@/features/post/CreatePost';
+import {CupSoda, Search } from 'lucide-react';
+import { DropdownMenuAvatar } from './DropdownMenuAvatar';
 
 function Topbar() {
     return (
@@ -22,27 +18,9 @@ function Topbar() {
                         <Search />
                     </InputGroupAddon>
                 </InputGroup>
-                <div className='space-x-4 flex gap-2'>
-                    <div className='hidden md:block'>
-                        <Tooltip>
-                            <TooltipTrigger>
-                                <Dialog>
-                                    <DialogTrigger>
-                                        <Button className='flex justify-center gap-2 rounded-full'>
-                                            <Plus /> <span>
-                                                Create
-                                            </span>
-                                        </Button>
-                                    </DialogTrigger>
-                                    <DialogContent>
-                                        <CreatePost />
-                                    </DialogContent>
-                                </Dialog>
-                            </TooltipTrigger>
-                            <TooltipContent>Create new post</TooltipContent>
-                        </Tooltip>
-                    </div>
-                    <ToggleTheme />
+                <div className='space-x-4 flex gap-2 items-center'>
+                    {/* <Button className='rounded-full' variant="ghost" size="icon-lg"><MessageCircleMore/></Button> */}
+                    <DropdownMenuAvatar />
                 </div>
             </div>
         </div>)

@@ -1,7 +1,7 @@
-import { Home, Plus, User } from "lucide-react"
-import { Button } from "./ui/button"
+import { HeartPlus, Home, Laugh, NewspaperIcon, Plus } from "lucide-react"
 import { Dialog, DialogContent, DialogTrigger } from "./ui/dialog"
 import CreatePost from "@/features/post/CreatePost"
+import { Button } from "./ui/button"
 
 function Bottombar() {
     return (
@@ -11,10 +11,13 @@ function Bottombar() {
                     <Button variant="ghost" size="icon">
                         <Home />
                     </Button>
+                    <Button variant="ghost" size="icon">
+                        <HeartPlus />
+                    </Button>
                     <Dialog>
                         <DialogTrigger>
-                            <Button variant="ghost" size="icon">
-                                <Plus />
+                            <Button className="h-10 w-10 rounded-full relative -top-1/2"  size="icon">
+                                <Plus/>
                             </Button>
                             <DialogContent>
                                 <CreatePost />
@@ -22,7 +25,10 @@ function Bottombar() {
                         </DialogTrigger>
                     </Dialog>
                     <Button variant="ghost" size="icon">
-                        <User />
+                        <Laugh />
+                    </Button>
+                    <Button variant="ghost" size="icon">
+                        <NewspaperIcon />
                     </Button>
                 </div>
             </div>

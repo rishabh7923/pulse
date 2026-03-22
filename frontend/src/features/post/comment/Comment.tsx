@@ -1,20 +1,21 @@
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar'
-
-function Comment() {
+import type { Comment } from '@/types/comment';
+import dayjs from "@/lib/day";
+function Comment({ comment }: { comment: Comment }) {
     return (
         <div className='p-2'>
             <div className='flex gap-2 items-center'>
                 <Avatar>
-                    <AvatarImage src="https://github.com/shadcn.png" />
+                    <AvatarImage src={comment?.user?.profilePic} />
                     <AvatarFallback>CN</AvatarFallback>
                 </Avatar>
                 <span className="font-semibold text-sm">notaprotoganist</span>
                 <div className='text-muted-foreground text-xs'>
-                    19 mins ago
+                    {dayjs(comment.created_at).fromNow()}
                 </div>
             </div>
             <p className='mt-1 text-sm'>
-                Lorem, ipsum dolor sit amet consectetur adipisicing elit. Nam, optio.
+                {comment.content}
             </p>
         </div>
     )
