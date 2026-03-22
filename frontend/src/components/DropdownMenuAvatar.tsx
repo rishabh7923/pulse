@@ -47,7 +47,7 @@ export function DropdownMenuAvatar() {
         
         </DropdownMenuGroup>
         <DropdownMenuSeparator />
-        <DropdownMenuItem variant="destructive" onClick={logoutcd ..}>
+        <DropdownMenuItem variant="destructive" onClick={logout}>
           <LogOutIcon />
           Sign Out
         </DropdownMenuItem>
