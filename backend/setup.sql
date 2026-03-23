@@ -18,12 +18,12 @@ CREATE TABLE otps (
 );
 
 -- Post related
-CREATE TABLE category (
+CREATE TABLE categories (
     id INT PRIMARY KEY,
     name VARCHAR(50) UNIQUE
 );
 
-INSERT INTO category
+INSERT INTO categories
 VALUES (1, 'issues'), (2, 'confession'), (3, 'meme'), (4, 'question');
 
 CREATE TABLE posts (

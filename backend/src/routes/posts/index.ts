@@ -2,8 +2,10 @@ import type { Handler } from "express";
 import { isAuthenticated } from "../../middlewares/isAuthenticated.js";
 import { v2 as cloudinary, type UploadApiResponse } from 'cloudinary'
 
-import knex from "../../database/connection.js";
 import multer from "multer";
+
+import { Post } from "../../database/entity/Post.js";
+import { LessThan } from "typeorm";
 
 const upload = multer({ storage: multer.memoryStorage() });
 
@@ -23,34 +25,21 @@ export const post: Handler[] = [
             )
         );
 
-        const data = await knex.transaction(async (trx) => {
-            const [postId] = await trx("posts").insert({
-                content,
-                category_id: category_id,
-                user_id: req.user!.id,
-            });
-
-            if (uploaded.length) {
-                await trx("attachments").insert(
-                    uploaded.map(x => ({
-                        type: "image",
-                        url: x.secure_url,
-                        post_id: postId
-                    }))
-                );
-            }
-
-            const [post, attachments] = await Promise.all([
-                trx("posts").where({ id: postId }).first(),
-                uploaded.length
-                    ? trx("attachments").select("url", "type", "id").where({ post_id: postId })
-                    : []
-            ]);
-
-            return { ...post, attachments };
+        const { id: postId } = await Post.save({
+            content,
+            category: { id: category_id },
+            user: { id: req.user.id },
+            attachments: uploaded.map((x) => ({
+                url: x.secure_url,
+            })),
         });
 
-        res.status(201).json({ success: true, data });
+        const post = await Post.findOne({
+            where: { id: postId },
+            relations: { attachments: true, user: true, category: true }
+        });
+
+        res.status(201).json({ success: true, data: { post } });
     }
 ]
 
@@ -63,46 +52,21 @@ export const get: Handler[] = [
         //set default limit and make sure it can not be set more than 50
         const limit = Math.min(Number(req.query.limit) || 10, 50);
 
-        // based query, which we will build up step by step based on scenario
-        let postsQuery = knex("posts")
-            .select("posts.*", knex.raw("CASE WHEN reactions.id IS NOT NULL THEN true ELSE false END as liked"))
-            .leftJoin('reactions', function() {
-                this
-                    .on('reactions.post_id', '=', 'posts.id')
-                    .andOn('reactions.user_id', '=', knex.raw('?', [req.user!.id]))
-            })
-            .orderBy('posts.created_at', 'desc')
-            .orderBy('posts.id', 'desc')
-            .limit(limit);
-
-        /** if cursor id is provided */
-        if (cursorCreatedAt && cursorId) {
-            postsQuery = postsQuery.where(function () {
-                this.where('posts.created_at', '<', cursorCreatedAt)
-                    .orWhere(function () {
-                        this.where('posts.created_at', '=', cursorCreatedAt)
-                            .andWhere('posts.id', '<', Number(cursorId))
-                    })
-            });
-        }
-    
-        const posts = await postsQuery;
-
-        //fetch all the attachment in one go to avoid N + 1 query problem 
-        const attachments = posts.length
-            ? await knex("attachments").whereIn("post_id", posts.map(x => x.id))
-            : [];
-
-        const postsWithAttachment = posts.map((post) => ({
-            ...post,
-            attachments: attachments.filter(x => x.post_id === post.id)
-        }));
+        const posts = await Post.find({
+            where: (cursorCreatedAt && cursorId) ? [
+                { created_at: LessThan(new Date(cursorCreatedAt)) },
+                { created_at: new Date(cursorCreatedAt), id: LessThan(Number(cursorId)) }
+            ] : {},
+            order: { created_at: 'DESC', id: 'DESC' },
+            take: limit,
+            relations: { user: true, attachments: true, category: true },
+        })
 
         const lastPost = posts[posts.length - 1];
 
         return res.status(200).json({
             success: true,
-            data: { posts: postsWithAttachment },
+            data: { posts },
             pagination: {
                 next_cursor: lastPost ? `${lastPost.created_at.toISOString()}_${lastPost.id}` : null
             }

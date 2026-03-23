@@ -3,6 +3,10 @@ import type { Handler } from "express";
 import { isAuthenticated } from "../../../middlewares/isAuthenticated.js";
 import { INVALID_PARAMETERS } from "../../../errors.js";
 
+import DataSource from '../../../database/connection.js'
+import { Reaction } from "../../../database/entity/Reaction.js";
+import { Post } from "../../../database/entity/Post.js";
+
 export const post: Handler[] = [
     isAuthenticated,
     async (req, res) => {
@@ -10,21 +14,23 @@ export const post: Handler[] = [
         if (!postId || !Number(postId))
             return res.status(400).json({ success: false, error: INVALID_PARAMETERS })
 
-        await knex.transaction(async (txn) => {
-            const [id] = await txn('reactions')
-                .insert({
-                    post_id: postId,
-                    user_id: req.user!.id
+        await DataSource.manager.transaction(async (manager) => {
+            const result = await manager
+                .createQueryBuilder()
+                .insert()
+                .into(Reaction)
+                .values({
+                    post: { id: Number(postId) },
+                    user: { id: req.user.id }
                 })
-                .onConflict(['post_id', 'user_id'])
-                .ignore();
+                .orIgnore()
+                .updateEntity(false) // throws error if you dont include this due to use of orIgnore()
+                .execute();
 
-            if (id) {
-                await txn('posts')
-                    .where('id', postId)
-                    .increment('likes_count', 1)
+            if (result.raw.affectedRows > 0) {
+                await manager.increment(Post, { id: postId }, 'likes_count', 1);
             }
-        })
+        });
 
         return res.status(201).json({ success: true });
     }
@@ -36,16 +42,14 @@ export const del: Handler[] = [
         const { postId } = req.params;
         if (!postId || !Number(postId)) return res.status(400).json({ success: false, error: INVALID_PARAMETERS })
 
-        await knex.transaction(async (txn) => {
-            const deleted = await txn('reactions')
-                .delete()
-                .where({ post_id: postId, user_id: req.user?.id })
+        await DataSource.manager.transaction(async (manager) => {
+            const result = await manager
+                .delete(Reaction, { post: { id: Number(postId) }, user: { id: req.user.id }})
 
-            if (deleted > 0) await txn('posts')
-                .where('id', postId)
-                .andWhere('likes_count', '>', '0') //just to be sure
-                .decrement('likes_count', 1)
-        })
+            if (result.affected > 0) {
+                await manager.decrement(Post, { id: postId }, 'likes_count', 1);
+            }
+        });
 
         return res.status(200).json({ success: true })
     }

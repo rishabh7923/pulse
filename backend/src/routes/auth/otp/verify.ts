@@ -1,6 +1,10 @@
 import type { Handler } from 'express';
-import knex from '../../../database/connection.js';
 import { isAuthenticated } from '../../../middlewares/isAuthenticated.js';
+import { MoreThan } from 'typeorm';
+
+import DataSource from '../../../database/connection.js'
+import { Otp } from '../../../database/entity/Otp.js';
+import { User } from '../../../database/entity/User.js';
 
 export const post: Handler[] = [isAuthenticated, async (req, res) => {
     const otp = req.body.otp;
@@ -8,17 +12,17 @@ export const post: Handler[] = [isAuthenticated, async (req, res) => {
         return res.status(400).end();
 
     if (
-        !await knex('otps')
-            .select('*')
-            .where({ user_id: req.user?.id, otp })
-            .andWhere('expires_at', '>', knex.fn.now())
-            .first()
+        !await Otp.findOneBy({
+            user_id: req.user.id,
+            otp,
+            expires_at: MoreThan(new Date())
+        })
     ) return res.status(401).end();
 
-    await knex.transaction(async (trx) => {
-        await trx('users').update({ verified: true }).where({ id: req.user!.id });
-        await trx('otps').delete().where({ user_id: req.user?.id });
-    });
+    await DataSource.manager.transaction(async (manager) => {
+        await manager.update(User, { id: req.user.id }, { verified: true });
+        await manager.delete(Otp, { user_id: req.user.id })
+    })
 
     return res.status(204).end();
 }];

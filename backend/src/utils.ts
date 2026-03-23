@@ -4,14 +4,14 @@ import type { Express } from 'express';
 import path from 'path';
 import { pathToFileURL } from 'url';
 
-export const generateOTP = (digits: number = 6): number => {
+export const generateOTP = (digits: number = 6): string => {
     const min = Math.pow(10, digits - 1);
     const max = Math.pow(10, digits) - 1;
 
-    return Math.floor(min + Math.random() * (max - min + 1));
+    return (Math.floor(min + Math.random() * (max - min + 1))).toString();
 }
 
-export const sendOTPMail = async (email: string, otp: number): Promise<boolean> => {
+export const sendOTPMail = async (email: string, otp: string): Promise<boolean> => {
     const transporter = nodemailer.createTransport({
         host: process.env.MAIL_HOST!,
         port: parseInt(process.env.MAIL_PORT!),

@@ -1,9 +1,9 @@
-import knex from '../../../../database/connection.js';
 
 import type { Handler } from "express";
 import { z } from "zod";
 import { isAuthenticated } from "../../../../middlewares/isAuthenticated.js";
 import { INVALID_PARAMETERS, NOT_FOUND } from "../../../../errors.js";
+import { Comment } from "../../../../database/entity/Comment.js";
 
 export const del: Handler[] = [
     isAuthenticated,
@@ -28,11 +28,12 @@ export const del: Handler[] = [
     async (req, res) => {
         const { commentId } = req.params;
 
-        const deleted = await knex('comments')
-            .where({ id: commentId, user_id: req.user!.id })
-            .delete()
+        const deleted = await Comment.delete({
+            id: Number(commentId),
+            user: { id: req.user.id }
+        })
 
-        if (!deleted) return res.status(404).json({
+        if (!deleted.affected) return res.status(404).json({
             success: false,
             error: NOT_FOUND
         })
