@@ -1,17 +1,19 @@
 import type { Handler } from 'express';
-import knex from '../../../database/connection.js';
+import { Otp } from '../../../database/entity/Otp.js';
+
 import { OTP_ALREADY_SENT, OTP_SEND_FAILED } from '../../../errors.js';
 import { isAuthenticated } from '../../../middlewares/isAuthenticated.js';
 import { generateOTP, sendOTPMail } from '../../../utils.js';
+import { MoreThan } from 'typeorm';
 
 export const post: Handler[] = [isAuthenticated, async (req, res) => {
     const user = req.user!;
 
     if (
-        await knex('otps')
-            .where({ user_id: user.id })
-            .andWhere('expires_at', '>', knex.fn.now())
-            .first()
+        await Otp.findOneBy({
+            user_id: user.id,
+            expires_at: MoreThan(new Date())
+        })
     ) return res.status(429).json({ success: false, error: OTP_ALREADY_SENT })
 
     const otp = generateOTP(6);
@@ -21,12 +23,12 @@ export const post: Handler[] = [isAuthenticated, async (req, res) => {
         return res.status(500).json({ success: false, error: OTP_SEND_FAILED })
     }
 
-    await knex('otps').upsert({
+    await Otp.upsert({
         user_id: user.id,
         otp: otp,
         expires_at: new Date(Date.now() + (3 * 60 * 1000)),
         created_at: new Date()
-    })
+    }, ['user_id'])
 
     return res.status(204).end();
 }];

@@ -1,9 +1,9 @@
 import type { Handler } from 'express';
-import knex from '../../database/connection.js';
+import { User } from '../../database/entity/User.js';
+import { INVALID_PARAMETERS, INVALID_CREDENTIALS } from '../../errors.js';
+
 import bcrypt from 'bcrypt';
 import jwt from 'jsonwebtoken';
-
-import { INVALID_PARAMETERS, INVALID_CREDENTIALS } from '../../errors.js';
 
 export const post: Handler = async (req, res) => {
   const { username, password } = req.body || {};
@@ -15,10 +15,10 @@ export const post: Handler = async (req, res) => {
     });
   }
 
-  const user = await knex('users')
-    .select('*')
-    .where({ username })
-    .first();
+  const user = await User.findOne({
+    select: ['email', 'id', 'password', 'username', 'verified'],
+    where: { username }
+  })
 
   if (!user) {
     return res.status(400).json({

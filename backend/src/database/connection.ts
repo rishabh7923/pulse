@@ -1,15 +1,26 @@
-import knex from "knex";
+import { DataSource } from 'typeorm'
+import { User } from './entity/User.js';
+import { Otp } from './entity/Otp.js';
+import { Post } from './entity/Post.js';
+import { Category } from './entity/Category.js';
+import { Attachment } from './entity/Attachment.js';
+import { Reaction } from './entity/Reaction.js';
+import { Comment } from './entity/Comment.js';
 
-const connection = knex({
-  client: 'mysql2',
-  connection: {
+export const AppDataSource = new DataSource({
+    type: "mysql",
     host: process.env.SQL_HOST!,
     port: Number(process.env.SQL_PORT!),
-    user: process.env.SQL_USERNAME!,
+    username: process.env.SQL_USERNAME!,
     password: process.env.SQL_PASSWORD!,
     database: process.env.SQL_DATABASE!,
-    timezone:'Z'
-  },
-});
+    synchronize: true,
+    logging: true,
+    entities: [User, Otp, Post, Category, Attachment, Reaction, Comment],
+    subscribers: [],
+    migrations: [],
+    timezone: 'Z'
+})
 
-export default connection;
+
+export default AppDataSource;
