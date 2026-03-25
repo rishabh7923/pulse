@@ -10,6 +10,7 @@ export default function CreatePost() {
   const [content, setContent] = useState("")
   const [images, setImages] = useState<string[]>([])
   const [files, setFiles] = useState<File[]>([])
+  const [category, setCategory] = useState<string>("general");
   const { createPost, status } = useCreatePost({ onSuccess: cleanup, onError: cleanup });
 
   function cleanup() {
@@ -39,8 +40,8 @@ export default function CreatePost() {
     e.preventDefault()
     const formData = new FormData()
 
-    formData.append("content", content)
-
+    formData.append("content", content);
+    formData.append("category_id", category);
     files.forEach(file => {
       formData.append("attachments", file)
     })
@@ -83,7 +84,7 @@ export default function CreatePost() {
           {/* Actions */}
           <div className="flex items-center gap-4 ">
             <ImageInput onChange={handleChange} />
-            <SelectPostCategory/>
+            <SelectPostCategory setCategory={setCategory} category={category} />
           </div>
 
           {/* Post Button */}

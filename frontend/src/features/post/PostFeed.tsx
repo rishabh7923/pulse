@@ -1,3 +1,4 @@
+import { Outlet } from 'react-router-dom';
 import useInfinitePosts from './hooks/useInfinitePosts';
 import usePosts from './hooks/usePosts'
 import PostCard from './PostCard'
@@ -33,11 +34,14 @@ function PostFeed() {
                     liked={post.liked}
                     saved={false}
                     ref={i === posts.length - 1 ? lastPostRef : null}
+                    user={post.user}
+                    category={post.category}
                 />
             ))}
 
             {isFetchingNextPage && <PostCardSkeleton />}
             {status === "error" && <p>{error?.message}</p>}
+            <Outlet/>
         </ul>
     );
 }

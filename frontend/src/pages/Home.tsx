@@ -1,5 +1,5 @@
 import { useEffect } from 'react';
-import { Outlet, useNavigate } from 'react-router-dom';
+import { useNavigate } from 'react-router-dom';
 import CreatePost from '@/features/post/CreatePost';
 import { useAuth } from '@/features/auth/AuthContext';
 import PostFeed from '@/features/post/PostFeed';
@@ -39,7 +39,6 @@ function Home() {
                 </div>
                 <TrendingSection />
             </div>
-            <Outlet />
             <Bottombar />
         </Container>
     </>

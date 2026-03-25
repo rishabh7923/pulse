@@ -1,94 +1,89 @@
-import type { Ref } from "react";
+import { forwardRef } from "react";
 import { useNavigate } from "react-router-dom";
-import { Bookmark, Share2 } from "lucide-react";
+import { Bookmark, ShareIcon } from "lucide-react";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import CommentButton from "./comment/CommentButton";
 import LikeButton from "./LikeButton";
 import { PostCardDropDown } from "./PostCardDropDown";
+import type { PostCardProps } from "@/types/post";
 
-type PostCardProps = {
-    id: string;
-    author: string;
-    avatar?: string;
-    content: string;
-    image?: string;
-    createdAt: string;
-    likes: number;
-    comments: number;
-    liked: boolean;
-    saved?: boolean;
-    ref: Ref<HTMLDivElement>
-};
-
-export default function PostCard({
-    // avatar,
-    id,
-    content,
-    image,
-    createdAt,
-    likes,
-    liked,
-    saved,
-    ref
-}: PostCardProps) {
+const PostCard = forwardRef<HTMLDivElement, PostCardProps>((post, ref) => {
     const navigate = useNavigate();
-    return (
-        <div className="hover:bg-card p-4 space-y-4" ref={ref}>
+    
+  return (
+      <div
+      ref={ref}
+      className="group border-b p-4 transition hover:bg-muted/40"
+      >
+      {/* Header */}
+      <div className="flex items-start justify-between">
+        <div className="flex items-center gap-3">
+          <Avatar className="h-9 w-9">
+            <AvatarImage src={post.avatar || "https://github.com/shadcn.png"} />
+            <AvatarFallback>
+              {post.user.username.slice(0, 2).toUpperCase()}
+            </AvatarFallback>
+          </Avatar>
 
-            <div className="flex items-center justify-between">
-                <div className="flex items-center gap-3">
-
-                    <Avatar>
-                        <AvatarImage src="https://github.com/shadcn.png" />
-                        <AvatarFallback>CN</AvatarFallback>
-                    </Avatar>
-
-                    <div className="flex flex-col leading-none">
-                        <span className="font-medium text-sm">notaprotoganist</span>
-                        <span className="text-xs text-muted-foreground">
-                            {createdAt}
-                        </span>
-                    </div>
-
-                </div>
-                <PostCardDropDown />
+          <div className="flex flex-col">
+            <div className="flex items-center gap-4">
+              <span className="font-medium text-sm">
+                {post.user.username}
+              </span>
             </div>
 
-            {/* Content */}
-            <p className="text-sm leading-relaxed whitespace-pre-line">
-                {content}
-            </p>
-
-            {/* Image */}
-            {image && (
-                <div className="overflow-hidden rounded-lg border">
-                    <img
-                        src={image}
-                        className="w-full max-h-100 object-contain"
-                    />
-                </div>
-            )}
-
-            {/* Actions */}
-            <div className="flex items-center justify-between pt-2">
-
-                <div className="flex items-center gap-4">
-
-                    <LikeButton likes={likes} liked={Boolean(liked)} postId={id} />
-                    <CommentButton onClick={() => navigate(`p/${id}`)} />
-                    <button className="flex items-center gap-2 text-sm hover:text-yellow-500 transition" >
-                        <Share2 className="w-4 h-4" />
-                    </button>
-
-                </div>
-
-                <button className="hover:text-yellow-500 transition">
-                    <Bookmark
-                        className={`w-4 h-4 ${saved ? "fill-yellow-500 text-yellow-500" : ""}`}
-                    />
-                </button>
-
-            </div>
+            <span className="text-xs text-muted-foreground">
+              {post.createdAt}
+            </span>
+          </div>
         </div>
-    );
-}
+
+        <PostCardDropDown postId={post.id} userId={post.user.id} />
+      </div>
+
+      {/* Content */}
+      <div className="mt-3">
+        <p className="text-sm leading-relaxed whitespace-pre-line">
+          {post.content}
+        </p>
+      </div>
+
+      {/* Image */}
+      {post.image && (
+        <div className="mt-3 overflow-hidden rounded-xl border">
+          <img
+            src={post.image}
+            className="w-full max-h-[420px] object-cover transition group-hover:scale-[1.01]"
+            alt="post"
+            />
+        </div>
+      )}
+
+      {/* Actions */}
+      <div className="mt-3 flex items-center justify-between text-muted-foreground">
+        <div className="flex items-center gap-5">
+          <LikeButton
+            likes={post.likes}
+            liked={Boolean(post.liked)}
+            postId={post.id}
+            />
+
+          <CommentButton onClick={() => navigate(`/p/${post.id}`)} />
+
+          <button className="flex items-center gap-2 text-sm transition hover:text-foreground">
+            <ShareIcon className="h-4 w-4" />
+          </button>
+        </div>
+
+        <button className="transition hover:text-yellow-500">
+          <Bookmark
+            className={`h-4 w-4 transition ${
+                post.saved ? "fill-yellow-500 text-yellow-500" : ""
+            }`}
+            />
+        </button>
+      </div>
+    </div>
+  );
+});
+export default PostCard;

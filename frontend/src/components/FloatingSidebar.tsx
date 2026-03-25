@@ -5,7 +5,7 @@ import CreatePost from '@/features/post/CreatePost';
 import SideBarLink from "./SideBarLink"
 function FloatingSidebar() {
     return (
-        <div className="hidden mt-2 w-60 self-start bg-accent rounded-lg sticky top-20 h-auto md:flex flex-col gap-16">
+        <div className="hidden mt-2 w-60 self-start bg-popover rounded-lg sticky top-20 h-auto md:flex flex-col gap-16 border">
             <ul className="p-2 lg:p-4 space-y-4">
                 <SideBarLink to="/">
                     <Home /> Home
