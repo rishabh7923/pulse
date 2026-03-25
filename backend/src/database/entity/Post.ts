@@ -33,4 +33,10 @@ export class Post extends BaseEntity {
 
     @OneToMany(() => Comment, (comment) => comment.post)
     comments: Relation<Comment[]>;
+    
+    // Inside your Post class
+    @Column({ select: false, insert: false, update: false, nullable: true })
+    liked: boolean;
 }
+
+

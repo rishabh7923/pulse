@@ -52,15 +52,24 @@ export const get: Handler[] = [
         //set default limit and make sure it can not be set more than 50
         const limit = Math.min(Number(req.query.limit) || 10, 50);
 
-        const posts = await Post.find({
-            where: (cursorCreatedAt && cursorId) ? [
-                { created_at: LessThan(new Date(cursorCreatedAt)) },
-                { created_at: new Date(cursorCreatedAt), id: LessThan(Number(cursorId)) }
-            ] : {},
-            order: { created_at: 'DESC', id: 'DESC' },
-            take: limit,
-            relations: { user: true, attachments: true, category: true },
-        })
+        const posts = await Post.createQueryBuilder("post")
+            .leftJoinAndSelect("post.user", "user")
+            .leftJoinAndSelect("post.attachments", "attachments")
+            .leftJoinAndSelect("post.category", "category")
+
+            .leftJoin("reactions", "reaction", "reaction.post_id = post.id AND reaction.user_id = :userId", { userId: req.user.id })
+            .addSelect("CASE WHEN reaction.id IS NOT NULL THEN true ELSE false END", "post_liked")
+
+            .where(
+                (cursorCreatedAt && cursorId)
+                    ? "(post.created_at < :createdAt) OR (post.created_at = :createdAt AND post.id < :id)"
+                    : "1=1",
+                { createdAt: new Date(cursorCreatedAt), id: Number(cursorId) }
+            )
+            .orderBy("post.created_at", "DESC")
+            .addOrderBy("post.id", "DESC")
+            .take(limit)
+            .getMany();
 
         const lastPost = posts[posts.length - 1];
 
