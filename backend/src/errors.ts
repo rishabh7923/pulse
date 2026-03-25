@@ -47,3 +47,8 @@ export const NOT_FOUND: ApiError = {
   code: 'NOT_FOUND',
   message: 'Requested resource is not found'
 }
+
+export const SERVER_ERROR: ApiError = {
+  code: "SERVER_ERROR",
+  message: "Something went wrong at server side."
+}

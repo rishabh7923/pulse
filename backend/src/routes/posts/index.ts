@@ -52,13 +52,13 @@ export const get: Handler[] = [
         //set default limit and make sure it can not be set more than 50
         const limit = Math.min(Number(req.query.limit) || 10, 50);
 
-        const posts = await Post.createQueryBuilder("post")
+        let { entities: posts, raw } = await Post.createQueryBuilder("post")
             .leftJoinAndSelect("post.user", "user")
             .leftJoinAndSelect("post.attachments", "attachments")
             .leftJoinAndSelect("post.category", "category")
 
             .leftJoin("reactions", "reaction", "reaction.post_id = post.id AND reaction.user_id = :userId", { userId: req.user.id })
-            .addSelect("CASE WHEN reaction.id IS NOT NULL THEN true ELSE false END", "post_liked")
+            .addSelect("CASE WHEN reaction.id IS NOT NULL THEN true ELSE false END", "liked")
 
             .where(
                 (cursorCreatedAt && cursorId)
@@ -69,7 +69,9 @@ export const get: Handler[] = [
             .orderBy("post.created_at", "DESC")
             .addOrderBy("post.id", "DESC")
             .take(limit)
-            .getMany();
+            .getRawAndEntities();
+
+        posts = posts.map((post:any, i) => Object.assign(post, { liked: Boolean(+raw[i].liked) }))
 
         const lastPost = posts[posts.length - 1];
 

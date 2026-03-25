@@ -6,6 +6,7 @@ import cors from 'cors';
 import path from 'path';
 import createRouter from 'express-file-routing';
 import AppDataSource from "./database/connection.js";
+import { errorHandler } from "./middlewares/errorHandler.js";
 
 const app = express();
 app.use(cors());
@@ -16,9 +17,11 @@ await createRouter(app, {
   directory: path.join(import.meta.dirname, 'routes')
 });
 
+app.use(errorHandler);
+
 AppDataSource.initialize()
-  .then(() => {
-    app.listen(process.env.PORT || 3000, () => {
-      console.log('Server is running on port ' + (process.env.PORT || 3000));
-    });
-  })
+  .then(() => console.log('Connected to the database'))
+
+app.listen(process.env.PORT || 3000, () => {
+  console.log('Server is running on port ' + (process.env.PORT || 3000));
+});
