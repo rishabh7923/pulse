@@ -8,6 +8,18 @@ type GetPostsResponse = {
     nextCursor: string | null
 }
 
+export async function getPostApi(postId: string): Promise<Post> {
+    try {
+        const res = await axios(`posts/${postId}`);
+        return res.data.data.post
+    }
+    catch (e: unknown) {
+        if (e instanceof AxiosError) {
+            return e.response?.data.error
+        }
+        throw new Error("something went wrong while creating post")
+    }
+}
 export async function createPostApi(data: CreatePostSchema): Promise<CreatePostResponse> {
     try {
         const res = await axios("/posts", {
@@ -38,7 +50,7 @@ export async function getPostsApi(cursor: string | null = null): Promise<GetPost
 export async function likePostApi(postId: string) {
     try {
         await axios.post(`posts/${postId}/likes`);
-        }
+    }
     catch (e: unknown) {
         if (e instanceof AxiosError) {
             throw new Error(e.response?.data.error.message)
@@ -47,11 +59,22 @@ export async function likePostApi(postId: string) {
     }
 }
 
-export async function unlikePostApi(postId:string){
+export async function unlikePostApi(postId: string) {
     try {
         await axios.delete(`posts/${postId}/likes`);
-        }
+    }
     catch (e: unknown) {
+        if (e instanceof AxiosError) {
+            throw new Error(e.response?.data.error.message)
+        }
+        throw new Error("Something went wrong");
+    }
+}
+
+export async function deletePostApi(postId: string) {
+    try {
+        await axios.delete(`posts/${postId}`)
+    } catch (e) {
         if (e instanceof AxiosError) {
             throw new Error(e.response?.data.error.message)
         }

@@ -1,6 +1,6 @@
 import { AxiosError } from "axios";
 import axios from "../utils/axios"
-import type { addCommentSchema, Comment, getPostCommentsSchema } from "@/types/comment";
+import type { addCommentSchema, Comment, deleteCommentSchema, getPostCommentsSchema } from "@/types/comment";
 
 export async function addCommentApi(data: addCommentSchema) {
     try {
@@ -27,7 +27,7 @@ export async function getCommentsApi({ postId }: getPostCommentsSchema): Promise
     }
 }
 
-export async function deleteCommentApi({ postId, commentId }: { postId: string, commentId: string }) {
+export async function deleteCommentApi({ postId, commentId }: deleteCommentSchema) {
     try {
         await axios.delete(`posts/${postId}/comments/${commentId}`)
     } catch (e: unknown) {

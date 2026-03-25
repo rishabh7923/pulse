@@ -8,23 +8,28 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu"
 import { EllipsisVertical } from "lucide-react"
+import PostCardDeleteButton from "./PostCardDeleteButton"
+import { useAuth } from "../auth/AuthContext"
 
-export function PostCardDropDown() {
+export function PostCardDropDown({ postId, userId }: { postId: string, userId: string }) {
+  const { user } = useAuth();
   return (
     <DropdownMenu>
       <DropdownMenuTrigger asChild>
-        <Button variant="ghost" size="icon">
-            <EllipsisVertical/>
+        <Button className="rounded-full" variant="ghost" size="icon">
+          <EllipsisVertical />
         </Button>
       </DropdownMenuTrigger>
       <DropdownMenuContent>
         <DropdownMenuGroup>
-          <DropdownMenuItem variant="destructive">Report</DropdownMenuItem>
           <DropdownMenuItem>Go to post</DropdownMenuItem>
           <DropdownMenuItem>Copy link</DropdownMenuItem>
+          <DropdownMenuItem>Report</DropdownMenuItem>
         </DropdownMenuGroup>
-        <DropdownMenuSeparator />
-        <DropdownMenuItem variant="destructive">Delete</DropdownMenuItem>
+        {userId === user?.id && <>
+          <DropdownMenuSeparator />
+          <PostCardDeleteButton postId={postId} />
+        </>}
       </DropdownMenuContent>
     </DropdownMenu>
   )

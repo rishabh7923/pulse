@@ -3,21 +3,23 @@ import Comment from "./comment/Comment";
 import AddComment from "./comment/AddComment";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import useComments from "./comment/hooks/useComments";
+import usePost from "./hooks/usePost";
+import { useParams } from "react-router-dom";
 
-const image = "";
 function PostDialog() {
+    const params = useParams();
     const { comments, status } = useComments();
+    const { post } = usePost(params.pid as unknown as string);
     return (
         <div className="hidden md:block h-full p-4 overflow-hidden">
-            <div className="h-full w-4/5 mx-auto flex min-h-0 bg-background rounded-sm overflow-hidden">
-
+            <div className="h-full w-4/5 mx-auto flex min-h-0 bg-background rounded-sm overflow-hidden gap-2">
                 {/* Post image */}
-                <div className="w-full h-full bg-amber-600 border">
-                    {image && (
-                        <div className="overflow-hidden rounded-lg border">
+                <div className="w-full h-full">
+                    {post?.attachments[0] && (
+                        <div className="h-full">
                             <img
-                                src={image}
-                                className="w-full max-h-100 object-contain"
+                                src={post.attachments[0].url}
+                                className="w-full h-full object-fill"
                             />
                         </div>
                     )}
@@ -31,7 +33,7 @@ function PostDialog() {
                         </Avatar>
 
                         <div className="flex flex-col leading-none">
-                            <span className="font-semibold text-sm">notaprotoganist</span>
+                            <span className="font-semibold text-sm">{post?.user.username}</span>
                             <span className="text-xs text-muted-foreground">
                                 {"3 days ago"}
                             </span>
@@ -40,7 +42,7 @@ function PostDialog() {
 
                     {/* Post content */}
                     <div className="p-2 text-sm text-accent-foreground">
-                        <p>Lorem ipsum dolor sit amet consectetur adipisicing elit. Voluptate quibusdam, blanditiis itaque, neque et iure nulla error minus aut quo ducimus aliquid nesciunt.</p>
+                        <p>{post?.content}</p>
                     </div>
 
 
@@ -51,7 +53,7 @@ function PostDialog() {
                         </div>
 
                         <ul className="divide-y">
-                           {status == "success" && comments.map(c => <Comment comment={c}/>)}
+                           {status == "success" && comments!.map(c => <Comment comment={c}/>)}
                         </ul>
                     </ScrollArea>
 

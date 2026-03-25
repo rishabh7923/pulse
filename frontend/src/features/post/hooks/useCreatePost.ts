@@ -1,13 +1,16 @@
 import { createPostApi } from "@/api/post";
-import { useMutation } from "@tanstack/react-query";
+import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { toast } from "sonner";
 
 function useCreatePost({ onSuccess, onError }: { onSuccess: () => void, onError: () => void }) {
+    const client = useQueryClient();
     const { isSuccess, data, error, status, mutate: createPost } = useMutation({
         mutationFn: createPostApi,
         onSuccess: () => {
             toast("Post created successfully");
             if (onSuccess) onSuccess();
+            client.invalidateQueries({ queryKey: ["posts"] });
+
         },
         onError: (e) => {
             toast(e.message);

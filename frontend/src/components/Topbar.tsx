@@ -1,6 +1,7 @@
 import { InputGroup, InputGroupAddon, InputGroupInput } from '@/components/ui/input-group';
 import {CupSoda, Search } from 'lucide-react';
 import { DropdownMenuAvatar } from './DropdownMenuAvatar';
+import Test from './Test';
 
 function Topbar() {
     return (
@@ -19,7 +20,7 @@ function Topbar() {
                     </InputGroupAddon>
                 </InputGroup>
                 <div className='space-x-4 flex gap-2 items-center'>
-                    {/* <Button className='rounded-full' variant="ghost" size="icon-lg"><MessageCircleMore/></Button> */}
+                    <Test/>
                     <DropdownMenuAvatar />
                 </div>
             </div>
