@@ -3,4 +3,4 @@ Anonymous social media platform (similar to twitter) but designed only for colle
 
 
 ## Technical Details
-![](doc/images/database_map.png)
+![](https://github.com/rishabh7923/pulse/blob/master/backend/docs/images/database_map.png)
