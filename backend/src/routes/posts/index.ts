@@ -5,7 +5,8 @@ import { v2 as cloudinary, type UploadApiResponse } from 'cloudinary'
 import multer from "multer";
 
 import { Post } from "../../database/entity/Post.js";
-import { LessThan } from "typeorm";
+import { Hashtag } from "../../database/entity/Hashtag.js";
+import { In } from "typeorm";
 
 const upload = multer({ storage: multer.memoryStorage() });
 
@@ -14,7 +15,15 @@ export const post: Handler[] = [
     upload.array("attachments"),
     async (req, res) => {
         const { content, category_id } = req.body || {};
+
         const files = Array.isArray(req.files) ? req.files : [];
+        const tags = Array.from(
+            new Set(
+                (String(content ?? "")
+                    .match(/#(\w+)/g) ?? [])
+                    .map((tag) => tag.slice(1).toLowerCase())
+            )
+        );
 
         const uploaded = await Promise.all(
             files.map(file =>
@@ -25,9 +34,18 @@ export const post: Handler[] = [
             )
         );
 
+        if (tags.length) {
+            await Hashtag.upsert(tags.map((name) => ({ name })), ["name"]);
+        }
+
+        const hashtags = tags.length
+            ? await Hashtag.find({ where: { name: In(tags) } })
+            : [];
+
         const { id: postId } = await Post.save({
             content,
             category: { id: category_id },
+            hashtags,
             user: { id: req.user.id },
             attachments: uploaded.map((x) => ({
                 url: x.secure_url,
@@ -36,7 +54,7 @@ export const post: Handler[] = [
 
         const post = await Post.findOne({
             where: { id: postId },
-            relations: { attachments: true, user: true, category: true }
+            relations: { attachments: true, user: true, category: true, hashtags: true }
         });
 
         res.status(201).json({ success: true, data: { post } });
@@ -56,6 +74,7 @@ export const get: Handler[] = [
             .leftJoinAndSelect("post.user", "user")
             .leftJoinAndSelect("post.attachments", "attachments")
             .leftJoinAndSelect("post.category", "category")
+            .leftJoinAndSelect("post.hashtags", "hashtags")
 
             .leftJoin("reactions", "reaction", "reaction.post_id = post.id AND reaction.user_id = :userId", { userId: req.user.id })
             .addSelect("CASE WHEN reaction.id IS NOT NULL THEN true ELSE false END", "liked")

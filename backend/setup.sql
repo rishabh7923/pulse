@@ -35,7 +35,7 @@ CREATE TABLE posts (
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
 
     FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE,
-    FOREIGN KEY (category_id) REFERENCES category(id)
+    FOREIGN KEY (category_id) REFERENCES categories(id)
 );
 
 CREATE TABLE reactions (
@@ -68,4 +68,19 @@ CREATE TABLE comments (
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     FOREIGN KEY (post_id) REFERENCES posts(id),
     FOREIGN KEY (user_id) REFERENCES users(id)
+);
+
+CREATE TABLE hashtags (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    name VARCHAR(255) NOT NULL UNIQUE
+);
+
+CREATE TABLE post_hashtags (
+    post_id INT NOT NULL,
+    hashtag_id INT NOT NULL,
+    PRIMARY KEY (post_id, hashtag_id),
+    KEY idx_post_hashtags_hashtag_id (hashtag_id),
+
+    FOREIGN KEY (post_id) REFERENCES posts(id),
+    FOREIGN KEY (hashtag_id) REFERENCES hashtags(id)
 );

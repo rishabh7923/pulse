@@ -11,8 +11,6 @@ export const post: Handler[] = [
     isAuthenticated,
     async (req, res) => {
         const { postId } = req.params;
-        if (!postId || !Number(postId))
-            return res.status(400).json({ success: false, error: INVALID_PARAMETERS })
 
         await DataSource.manager.transaction(async (manager) => {
             const result = await manager
@@ -40,7 +38,6 @@ export const del: Handler[] = [
     isAuthenticated,
     async (req, res) => {
         const { postId } = req.params;
-        if (!postId || !Number(postId)) return res.status(400).json({ success: false, error: INVALID_PARAMETERS })
 
         await DataSource.manager.transaction(async (manager) => {
             const result = await manager

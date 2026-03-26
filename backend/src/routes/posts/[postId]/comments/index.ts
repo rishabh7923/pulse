@@ -1,4 +1,3 @@
-import knex from '../../../../database/connection.js'
 import type { Handler } from 'express';
 import { z } from "zod";
 import { isAuthenticated } from '../../../../middlewares/isAuthenticated.js';
@@ -9,16 +8,8 @@ export const post: Handler[] = [
     isAuthenticated,
     (req, res, next) => {
         const { success, data, error } = z.object({
-            params: z.object({
-                postId: z.coerce.number().int().positive()
-            }),
-            body: z.object({
-                content: z.string().min(1)
-            })
-        }).safeParse({
-            params: req.params,
-            body: req.body
-        })
+            content: z.string().min(1)
+        }).safeParse(req.body)
 
         if (!success) {
             return res.status(400).json({
@@ -30,9 +21,7 @@ export const post: Handler[] = [
             });
         }
 
-        req.params = data.params as any;
-        req.body = data.body as any;
-
+        req.body = data as any;
         next();
     },
     async (req, res) => {
@@ -49,7 +38,7 @@ export const post: Handler[] = [
             where: { id: addedComment.id },
             relations: { user: true, post: true }
         })
-        
+
         res.status(201).json({
             success: true,
             data: { comment }
@@ -59,24 +48,6 @@ export const post: Handler[] = [
 
 export const get: Handler[] = [
     isAuthenticated,
-    (req, res, next) => {
-        const { success, data, error } = z
-            .object({ postId: z.coerce.number().int().positive() })
-            .safeParse(req.params);
-
-        if (!success) {
-            return res.status(400).json({
-                success: false,
-                error: {
-                    ...INVALID_PARAMETERS,
-                    message: `(${error.issues[0]?.path.join('.')}) ${error.issues[0]?.message}`,
-                },
-            });
-        }
-
-        req.params = data as any;
-        next();
-    },
     async (req, res) => {
         const { postId: post_id } = req.params;
         const comments = await Comment.find({

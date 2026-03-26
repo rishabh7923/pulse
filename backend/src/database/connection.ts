@@ -6,6 +6,7 @@ import { Category } from './entity/Category.js';
 import { Attachment } from './entity/Attachment.js';
 import { Reaction } from './entity/Reaction.js';
 import { Comment } from './entity/Comment.js';
+import { Hashtag } from './entity/Hashtag.js';
 
 export const AppDataSource = new DataSource({
     type: "mysql",
@@ -16,7 +17,16 @@ export const AppDataSource = new DataSource({
     database: process.env.SQL_DATABASE!,
     synchronize: true,
     logging: true,
-    entities: [User, Otp, Post, Category, Attachment, Reaction, Comment],
+    entities: [
+        User,
+        Otp,
+        Post,
+        Category,
+        Attachment,
+        Reaction,
+        Comment,
+        Hashtag
+    ],
     subscribers: [],
     migrations: [],
     timezone: 'Z'
