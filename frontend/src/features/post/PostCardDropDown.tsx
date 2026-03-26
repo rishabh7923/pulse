@@ -16,7 +16,7 @@ export function PostCardDropDown({ postId, userId }: { postId: string, userId: s
   return (
     <DropdownMenu>
       <DropdownMenuTrigger asChild>
-        <Button className="rounded-full" variant="ghost" size="icon">
+        <Button className="rounded-full text-right" variant="ghost" size="icon">
           <EllipsisVertical />
         </Button>
       </DropdownMenuTrigger>

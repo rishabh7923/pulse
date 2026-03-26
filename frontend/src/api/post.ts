@@ -15,7 +15,7 @@ export async function getPostApi(postId: string): Promise<Post> {
     }
     catch (e: unknown) {
         if (e instanceof AxiosError) {
-            return e.response?.data.error
+            throw new Error (e.response?.data.error.message)
         }
         throw new Error("something went wrong while creating post")
     }
@@ -30,7 +30,7 @@ export async function createPostApi(data: CreatePostSchema): Promise<CreatePostR
     }
     catch (e: unknown) {
         if (e instanceof AxiosError) {
-            return e.response?.data.error
+            throw new Error (e.response?.data.error.message)
         }
         throw new Error("something went wrong while creating post")
     }
