@@ -6,6 +6,7 @@ import CommentButton from "./comment/CommentButton";
 import LikeButton from "./LikeButton";
 import { PostCardDropDown } from "./PostCardDropDown";
 import type { PostCardProps } from "@/types/post";
+import { Button } from "@/components/ui/button";
 
 const PostCard = forwardRef<HTMLDivElement, PostCardProps>((post, ref) => {
     const navigate = useNavigate();
@@ -75,13 +76,13 @@ const PostCard = forwardRef<HTMLDivElement, PostCardProps>((post, ref) => {
           </button>
         </div>
 
-        <button className="transition hover:text-yellow-500">
+        <Button variant="ghost" size="icon" className="transition-all hover:text-yellow-500 rounded-full hover:bg-yellow-100">
           <Bookmark
             className={`h-4 w-4 transition ${
                 post.saved ? "fill-yellow-500 text-yellow-500" : ""
             }`}
             />
-        </button>
+        </Button>
       </div>
     </div>
   );

@@ -10,7 +10,7 @@ export default function CreatePost() {
   const [content, setContent] = useState("")
   const [images, setImages] = useState<string[]>([])
   const [files, setFiles] = useState<File[]>([])
-  const [category, setCategory] = useState<string>("general");
+  const [category, setCategory] = useState<string>("5");
   const { createPost, status } = useCreatePost({ onSuccess: cleanup, onError: cleanup });
 
   function cleanup() {

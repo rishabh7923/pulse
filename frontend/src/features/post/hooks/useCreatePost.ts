@@ -10,7 +10,6 @@ function useCreatePost({ onSuccess, onError }: { onSuccess: () => void, onError:
             toast("Post created successfully");
             if (onSuccess) onSuccess();
             client.invalidateQueries({ queryKey: ["posts"] });
-
         },
         onError: (e) => {
             toast(e.message);
